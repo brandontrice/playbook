@@ -25,10 +25,15 @@ type SeedConcept = {
 const SPORT = { name: "Basketball", slug: "basketball" };
 
 // Top-10 2025-26 NBA jersey-sales players (per NBA.com/NBPA, Aug 2026), one
-// signature concept each. Clip picks are candidates sourced from public
-// highlight/breakdown videos — swap any of them from the admin screen.
-// Beat timestamps are round-number placeholders (I can't watch/frame-verify
-// video) — refine them to the actual moment while watching, in Admin.
+// signature concept each. Clips are short, single-play clips (mostly
+// YouTube Shorts) chosen specifically because they show ONE clear instance
+// of the concept — a long mixtape doesn't work with the beat/pause format,
+// since jumping into second 5 of a 20-minute compilation shows nothing in
+// particular. Every youtube_id below was checked live via the YouTube
+// oEmbed endpoint (200 = available/embeddable) before being included.
+// Beat timestamps are still round-number placeholders (I can't watch/
+// frame-verify video) — refine them to the actual moment while watching,
+// in Admin. Swap any pick you don't like the same way.
 const CONCEPTS: SeedConcept[] = [
   {
     slug: "curry-relocation-shooting",
@@ -39,16 +44,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 2,
     sort_order: 1,
     clip: {
-      youtube_id: "lfvb8zNsJbo",
+      youtube_id: "ocPTdCbXR3Q",
       start_sec: 0,
-      title: "How Stephen Curry's Off-Ball Movement Gets His Teammates Open",
+      title: "Stephen Curry's mastery of off-ball movement",
       teams: ["GSW"],
       players: ["Stephen Curry"],
       season: "2025-26",
     },
     beats: [
-      { t: 5, action: "pause", caption: "Curry just passed — watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
-      { t: 12, action: "pause", caption: "He's relocated to a new catch spot before the defense could recover.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Curry just passed — watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
+      { t: 6, action: "pause", caption: "He's relocated to a new catch spot before the defense could recover.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -84,16 +89,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 3,
     sort_order: 2,
     clip: {
-      youtube_id: "dsz0D6Jsj5c",
+      youtube_id: "HQZiB-y6amY",
       start_sec: 0,
-      title: "Every Luka Dončić Step-Back 3 of the 2022-23 Season",
-      teams: ["DAL"],
+      title: "Luka Dončić Step-Back Three Over Anthony Davis",
+      teams: ["LAL"],
       players: ["Luka Doncic"],
-      season: "2022-23",
+      season: "2025-26",
     },
     beats: [
-      { t: 6, action: "pause", caption: "Live dribble, defender square — this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 10, action: "pause", caption: "The push-back happens as the gather starts — separation before the rise, not during it.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Live dribble, defender square — this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
+      { t: 5, action: "pause", caption: "The push-back happens as the gather starts — separation before the rise, not during it.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -122,22 +127,22 @@ const CONCEPTS: SeedConcept[] = [
   {
     slug: "brunson-mid-range-hesitation",
     title: "Mid-Range Hesitation",
-    summary: "A change of pace, not a burst of speed — freezing the defender's hips is what creates the pull-up window.",
+    summary: "A change of pace, not a burst of speed — freezing the defender's hips is what creates the scoring window, pull-up or drive.",
     body_md:
-      "Brunson isn't the fastest player on the floor, so he wins with pace instead — a hesitation dribble that makes the defender's hips guess wrong for a fraction of a second is all he needs to get to his pull-up spot. Why it works: most drives beat a defender with speed; this beats them with timing, which means it works just as well against faster, longer defenders. Counter: defenses drop a big into the gap early to wall off the mid-range window entirely, forcing the pull-up to happen further from the rim.",
+      "Brunson isn't the fastest player on the floor, so he wins with pace instead — a hesitation dribble that makes the defender's hips guess wrong for a fraction of a second is all he needs to get to his spot, whether that's a mid-range pull-up or all the way to the rim. Why it works: most drives beat a defender with speed; this beats them with timing, which means it works just as well against faster, longer defenders. Counter: defenses drop a big into the gap early to wall off the paint and mid-range entirely, forcing the shot to happen further from the basket.",
     difficulty: 2,
     sort_order: 3,
     clip: {
-      youtube_id: "AQ2ysW9JeGI",
+      youtube_id: "3oaMqgOQ00E",
       start_sec: 0,
-      title: "Jalen Brunson Best Highlights — 2026 NBA Playoffs & Finals",
+      title: "Jalen Brunson — Hesitation & a Tough Finish",
       teams: ["NYK"],
       players: ["Jalen Brunson"],
       season: "2025-26",
     },
     beats: [
-      { t: 8, action: "pause", caption: "Watch his hips, not the ball — that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 13, action: "pause", caption: "One beat of hesitation bought him the space for the pull-up.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Watch his hips, not the ball — that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
+      { t: 5, action: "pause", caption: "One beat of hesitation bought him the space to finish.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -171,16 +176,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 3,
     sort_order: 4,
     clip: {
-      youtube_id: "9WGDgZZNyZw",
+      youtube_id: "Frm3WCEKKow",
       start_sec: 0,
-      title: "Victor Wembanyama Shot Blocking Highlights",
+      title: "Victor Wembanyama Blocks a Shot Without Jumping",
       teams: ["SAS"],
       players: ["Victor Wembanyama"],
       season: "2025-26",
     },
     beats: [
-      { t: 4, action: "pause", caption: "He starts on the weak side — this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
-      { t: 9, action: "pause", caption: "Straight up, not across the body — that's verticality, not a foul.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "He starts on the weak side — this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
+      { t: 5, action: "pause", caption: "Straight up, not across the body — that's verticality, not a foul.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -206,24 +211,24 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
-    slug: "lebron-downhill-drive-and-kick",
-    title: "Downhill Drive-and-Kick",
-    summary: "Attack the rim hard enough that two defenders commit — then the pass, not the drive, is the actual weapon.",
+    slug: "lebron-reading-the-help",
+    title: "Reading the Help Before It Arrives",
+    summary: "The pass leaves his hand before the help defender fully commits — the read happens a beat early, not after.",
     body_md:
-      "The drive is bait. Once LeBron gets downhill and a second defender steps up to help at the rim, he's already found the open man before the pass leaves his hand — the read happens mid-drive, not after. Why it works: it turns a 1-on-1 into a numbers game the defense can't win — they either give up the layup or give up an open three. Counter: teams pre-rotate a low man early and live with a slightly worse shot than a wide-open corner three, rather than help late and get killed by the kick-out.",
+      "LeBron's court vision isn't about seeing an open man once he appears — it's about seeing him a half-second before he's actually open, while the help defender is still mid-rotation. Why it works: it turns a 1-on-1 into a numbers game the defense can't win — they either give up the easy look at the rim or give up an open shot to whoever they left. Counter: teams pre-rotate a low man early and live with a slightly worse shot than a wide-open three, rather than help late and get killed by the pass.",
     difficulty: 3,
     sort_order: 5,
     clip: {
-      youtube_id: "peFqYsbWUeE",
+      youtube_id: "0Gt7lGASfbY",
       start_sec: 0,
-      title: "LeBron James Isolation Scoring/Playmaking Highlights",
+      title: "LeBron's No-Look Dime to Jake LaRavia",
       teams: ["LAL"],
       players: ["LeBron James"],
       season: "2025-26",
     },
     beats: [
-      { t: 7, action: "pause", caption: "He's already downhill — watch the second defender start to help.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
-      { t: 11, action: "pause", caption: "Kick-out before the help even fully arrives — the read was made a beat early.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Watch where his eyes are pointed versus where the ball actually goes.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
+      { t: 5, action: "pause", caption: "The pass is already gone before the defense fully reacted — that's the read made early.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -233,11 +238,11 @@ const CONCEPTS: SeedConcept[] = [
         { id: "C", x: 80, y: 50, team: "offense" },
       ],
       ball: { x: 45, y: 55 },
-      annotations: [{ type: "arrow", x1: 45, y1: 55, x2: 78, y2: 50, label: "kick-out" }],
+      annotations: [{ type: "arrow", x1: 45, y1: 55, x2: 78, y2: 50, label: "pass, read early" }],
     },
     quiz: [
       {
-        prompt: "What forces the defense into a losing decision in a drive-and-kick?",
+        prompt: "What forces the defense into a losing decision when a passer reads the help this early?",
         choices: [
           "A second defender has to help, leaving someone open",
           "The shot clock running out",
@@ -257,16 +262,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 2,
     sort_order: 6,
     clip: {
-      youtube_id: "4UBLPe1tBIM",
+      youtube_id: "H5rT3ZEmVYg",
       start_sec: 0,
-      title: "15 Minutes of Anthony Edwards' Best Career Dunks",
+      title: "Anthony Edwards Dunk Against Kevin Durant",
       teams: ["MIN"],
       players: ["Anthony Edwards"],
       season: "2025-26",
     },
     beats: [
-      { t: 5, action: "pause", caption: "Defender's flying in hard — that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
-      { t: 9, action: "pause", caption: "One dribble and he's already by — the closeout's own momentum beat itself.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Defender's flying in hard — that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
+      { t: 4, action: "pause", caption: "One dribble and he's already by — the closeout's own momentum beat itself.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -298,16 +303,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 3,
     sort_order: 7,
     clip: {
-      youtube_id: "QrvoNtvISS4",
+      youtube_id: "QyZ_c0hqzD4",
       start_sec: 0,
-      title: "Jayson Tatum's Unguardable Side-Step Highlights",
+      title: "The Jayson Tatum Side-Step, Broken Down",
       teams: ["BOS"],
       players: ["Jayson Tatum"],
       season: "2025-26",
     },
     beats: [
-      { t: 5, action: "pause", caption: "Hard plant to the side, not backward — watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
-      { t: 9, action: "pause", caption: "Defender's weight is still going the other way when the shot goes up.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Hard plant to the side, not backward — watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
+      { t: 5, action: "pause", caption: "Defender's weight is still going the other way when the shot goes up.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -339,16 +344,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 3,
     sort_order: 8,
     clip: {
-      youtube_id: "Mo4ni69qUbY",
+      youtube_id: "w3bgjTSO6_8",
       start_sec: 0,
-      title: "Shai Gilgeous-Alexander Drawing Fouls — OKC Thunder",
+      title: "Shai Gilgeous-Alexander Draws a Foul",
       teams: ["OKC"],
       players: ["Shai Gilgeous-Alexander"],
       season: "2025-26",
     },
     beats: [
-      { t: 6, action: "pause", caption: "Slow, controlled dribble — he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 10, action: "pause", caption: "Sudden burst into the body — that contact reads as a foul.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Slow, controlled dribble — he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
+      { t: 4, action: "pause", caption: "Sudden burst into the body — that contact reads as a foul.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -380,16 +385,16 @@ const CONCEPTS: SeedConcept[] = [
     difficulty: 4,
     sort_order: 9,
     clip: {
-      youtube_id: "1kLjd0DY3lE",
+      youtube_id: "EDbYcr18Dcg",
       start_sec: 0,
-      title: "Cooper Flagg Shows off His Two-Way Versatility",
+      title: "Cooper Flagg's Defensive Versatility — Guarding All 5 Positions",
       teams: ["DAL"],
       players: ["Cooper Flagg"],
       season: "2025-26",
     },
     beats: [
-      { t: 6, action: "pause", caption: "Screen coming — watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
-      { t: 10, action: "pause", caption: "No gap, no mismatch — he just picked up the new assignment clean.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Screen coming — watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
+      { t: 5, action: "pause", caption: "No gap, no mismatch — he just picked up the new assignment clean.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -414,25 +419,24 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
-    slug: "jokic-spain-pnr",
-    title: "Spain Pick-and-Roll",
-    summary: "A three-man action: a back screen on the screener's defender turns a simple pick-and-roll into a two-way trap.",
+    slug: "jokic-high-post-anticipation",
+    title: "High-Post Anticipation",
+    summary: "Operating from the elbow, he reads where the defense is about to break down before it actually does — the pass is thrown to a spot, not a person.",
     body_md:
-      "The Spain pick-and-roll adds a third player who sets a back screen on the roll man's defender, right as the pick-and-roll starts. Why it works: it attacks the exact defender who'd normally help — the screener's man — so if he stays home to stop the roll, he gets backscreened and can't help; if he helps anyway, the roller is wide open at the rim. Counter: switch everything, so there's no defender left in a position to be back-screened in the first place — which is exactly why Spain PnR is most common against teams that drop or hedge instead of switch.",
+      "Jokić spends most of his offense from the high post (the elbow area, above the free-throw line) rather than the block, which gives him a full view of the floor while the ball's still live. From there he's not reacting to who's open — he's throwing to where a cutter or shooter is about to be open, a half-second ahead of the defense. Why it works: by the time the defense reacts to the actual movement, the pass is already gone. Counter: some teams live with the deficit and simply refuse to help off shooters at all, taking away his easiest reads and forcing him to actually score instead of pass — you'll sometimes see this described as \"walling off\" the elbow. This same anticipation instinct is also what makes designed actions like the Spain pick-and-roll (a back screen set on the screener's own defender, right as the pick-and-roll starts, so that defender can't help without giving up a backdoor cut) so effective for him — it's a scripted version of the same \"attack the helper before he's ready\" idea.",
     difficulty: 4,
     sort_order: 10,
     clip: {
-      youtube_id: "NblTrosH6Cc",
+      youtube_id: "zDo1Dmlh_tw",
       start_sec: 0,
-      title: "Nikola Jokić — High-Post Playmaking",
+      title: "Jokić Knew the Play",
       teams: ["DEN"],
       players: ["Nikola Jokic"],
       season: "2025-26",
     },
     beats: [
-      { t: 4, action: "pause", caption: "Standard pick-and-roll shape so far — ball-handler and screener.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 8, action: "pause", caption: "Third man back-screens the screener's defender — that's the Spain action.", overlay: { arrows: [{ x1: 65, y1: 40, x2: 45, y2: 40 }] } },
-      { t: 13, action: "pause", caption: "Screener's defender is boxed in — he can't help without giving up the backdoor.", resume_after: 3 },
+      { t: 2, action: "pause", caption: "Watch his eyes before the pass — he's already tracking where the cutter is about to be.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
+      { t: 5, action: "pause", caption: "The pass goes to a spot the defense hasn't reacted to yet, not to where the cutter already is.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -443,6 +447,7 @@ const CONCEPTS: SeedConcept[] = [
       ],
       ball: { x: 50, y: 50 },
       annotations: [
+        { type: "label", x: 45, y: 30, text: "Spain PnR (designed version):" },
         { type: "screen", x: 47, y: 42 },
         { type: "arrow", x1: 65, y1: 40, x2: 47, y2: 40, label: "back screen" },
         { type: "arrow", x1: 45, y1: 35, x2: 40, y2: 50, label: "roll" },
@@ -450,18 +455,23 @@ const CONCEPTS: SeedConcept[] = [
     },
     quiz: [
       {
-        prompt: "What does the back screen in a Spain pick-and-roll specifically target?",
+        prompt: "In Jokić's high-post playmaking, what does he actually throw the pass to?",
         choices: [
-          "The roll man's own defender, taking away their ability to help",
-          "The ball-handler's defender",
-          "The weak-side corner shooter's defender",
-          "It's decorative and doesn't affect the defense",
+          "A spot the defense hasn't reacted to yet, not the cutter's current position",
+          "Whoever is already standing wide open",
+          "Always the same player on every possession",
+          "The spot only after the cutter calls for it",
         ],
         answer_idx: 0,
       },
     ],
   },
 ];
+
+// Slugs from earlier seed runs that got renamed or dropped (dead clip
+// replacements, content rework) — cleaned up so re-running `npm run seed`
+// doesn't leave orphaned rows behind under old names.
+const RETIRED_SLUGS = ["lebron-downhill-drive-and-kick", "jokic-spain-pnr"];
 
 async function main() {
   const { data: sport, error: sportErr } = await supabase
@@ -470,6 +480,8 @@ async function main() {
     .select()
     .single();
   if (sportErr || !sport) throw sportErr;
+
+  await supabase.from("concepts").delete().in("slug", RETIRED_SLUGS);
 
   for (const c of CONCEPTS) {
     const { data: concept, error: conceptErr } = await supabase
@@ -491,6 +503,22 @@ async function main() {
     if (conceptErr || !concept) {
       console.error(`concept ${c.slug} failed`, conceptErr);
       continue;
+    }
+
+    // Re-running this script re-seeds a concept from scratch: clear out
+    // whatever it already had (previous clip/breakdown/diagram/quiz) so
+    // repeat runs don't pile up duplicates.
+    const { data: oldBreakdowns } = await supabase
+      .from("breakdowns")
+      .select("clip_id")
+      .eq("concept_id", concept.id);
+    await supabase.from("quiz_items").delete().eq("concept_id", concept.id);
+    await supabase.from("diagrams").delete().eq("concept_id", concept.id);
+    await supabase.from("breakdowns").delete().eq("concept_id", concept.id);
+    await supabase.from("clip_concepts").delete().eq("concept_id", concept.id);
+    const oldClipIds = [...new Set((oldBreakdowns ?? []).map((b) => b.clip_id))];
+    if (oldClipIds.length > 0) {
+      await supabase.from("clips").delete().in("id", oldClipIds);
     }
 
     const { data: clip, error: clipErr } = await supabase

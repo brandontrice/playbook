@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* ---- theme tokens -----------------------------------------------------
+   Two presets, switched via [data-theme] on <html> (see src/lib/theme.tsx).
+   Add new UI against these tokens (bg-bg, text-text, bg-surface, etc via
+   the @theme block below) rather than hardcoding colors, so it works in
+   both themes automatically. */
+
+[data-theme="modern"] {
+  --pb-bg: #0a0b0f;
+  --pb-bg-2: #10131a;
+  --pb-surface: rgba(255, 255, 255, 0.06);
+  --pb-surface-border: rgba(255, 255, 255, 0.1);
+  --pb-text: #e8eaf0;
+  --pb-text-dim: #8b93a7;
+  --pb-primary: #7c5cff;
+  --pb-accent: #33e0ff;
+  --pb-accent-2: #ff3d81;
+  --pb-glow: 0 0 24px color-mix(in srgb, var(--pb-accent) 45%, transparent);
+  --pb-font-display: "Rajdhani", "Segoe UI", system-ui, sans-serif;
+  --pb-font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --pb-radius: 1rem;
+  --pb-texture: radial-gradient(
+      circle at 15% 10%,
+      color-mix(in srgb, var(--pb-primary) 25%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 90%,
+      color-mix(in srgb, var(--pb-accent) 20%, transparent),
+      transparent 45%
+    );
+}
+
+[data-theme="classic"] {
+  --pb-bg: #241708;
+  --pb-bg-2: #2e1c0a;
+  --pb-surface: rgba(255, 244, 214, 0.06);
+  --pb-surface-border: rgba(255, 214, 120, 0.18);
+  --pb-text: #f5e9cf;
+  --pb-text-dim: #c7a877;
+  --pb-primary: #fdb927;
+  --pb-accent: #552583;
+  --pb-accent-2: #007a33;
+  --pb-glow: 0 0 18px color-mix(in srgb, var(--pb-primary) 35%, transparent);
+  --pb-font-display: "Oswald", "Segoe UI", system-ui, sans-serif;
+  --pb-font-body: "Georgia", "Segoe UI", system-ui, serif;
+  --pb-radius: 0.25rem;
+  --pb-texture: repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--pb-primary) 6%, transparent) 0 2px,
+      transparent 2px 40px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--pb-primary) 6%, transparent) 0 2px,
+      transparent 2px 40px
+    );
+}
+
+@theme inline {
+  --color-bg: var(--pb-bg);
+  --color-bg-2: var(--pb-bg-2);
+  --color-surface: var(--pb-surface);
+  --color-surface-border: var(--pb-surface-border);
+  --color-text: var(--pb-text);
+  --color-text-dim: var(--pb-text-dim);
+  --color-primary: var(--pb-primary);
+  --color-accent: var(--pb-accent);
+  --color-accent-2: var(--pb-accent-2);
+  --font-display: var(--pb-font-display);
+  --font-body: var(--pb-font-body);
+  --radius-pb: var(--pb-radius);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--pb-bg);
+  background-image: var(--pb-texture);
+  color: var(--pb-text);
+  font-family: var(--pb-font-body);
+}
+
+h1, h2, h3 {
+  font-family: var(--pb-font-display);
+  letter-spacing: 0.02em;
+}
+
+.pb-glow {
+  box-shadow: var(--pb-glow);
+}

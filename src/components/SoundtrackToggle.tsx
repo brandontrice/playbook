@@ -1,12 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../lib/theme";
-import { isSoundtrackPlaying, onSoundtrackChange, startSoundtrack, toggleSoundtrack } from "../lib/soundtrack";
+import { armAutoStart, isSoundtrackPlaying, onSoundtrackChange, startSoundtrack, toggleSoundtrack } from "../lib/soundtrack";
 
 export function SoundtrackToggle() {
   const { theme } = useTheme();
   const [playing, setPlaying] = useState(isSoundtrackPlaying());
+  const themeRef = useRef(theme);
 
   useEffect(() => onSoundtrackChange(setPlaying), []);
+
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
+
+  // On by default: browsers won't let audio start until a real user gesture
+  // happens, so this arms a one-time listener for the page's first tap/
+  // click/key rather than trying (and failing) to play on load.
+  useEffect(() => {
+    armAutoStart(() => themeRef.current);
+  }, []);
 
   // Switching themes while the soundtrack is playing swaps to that theme's loop.
   useEffect(() => {

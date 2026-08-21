@@ -4,11 +4,11 @@ import { SoundtrackToggle } from "./SoundtrackToggle";
 
 export function Nav() {
   return (
-    <header className="flex items-center justify-between border-b border-surface-border px-6 py-4">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-surface-border px-4 py-3 sm:px-6 sm:py-4">
       <Link to="/" className="font-display text-xl tracking-wide text-text">
         PLAYBOOK
       </Link>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-4">
         <a
           href="https://www.instagram.com/brandonrdevelops"
           target="_blank"

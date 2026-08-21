@@ -1,4 +1,5 @@
 import { useSportsScoreboard } from "../../lib/sportsScores";
+import { LeagueBadge } from "./LeagueBadge";
 
 const MAX_TICKER_ITEMS = 12;
 
@@ -13,8 +14,8 @@ export function ScoreTicker() {
   const items = games.slice(0, MAX_TICKER_ITEMS).map((g) => {
     const isScheduled = g.state === "pre";
     return (
-      <span key={g.id} className="text-xs text-text-dim">
-        <span className="mr-1.5 text-text-dim/60">{leagueLabel(g.league)}</span>
+      <span key={g.id} className="inline-flex items-center gap-1.5 text-xs text-text-dim">
+        <LeagueBadge league={g.league} label={leagueLabel(g.league)} />
         <span className="font-display text-text">{g.away.abbreviation}</span>
         {!isScheduled && <> {g.away.score}</>}
         {" @ "}

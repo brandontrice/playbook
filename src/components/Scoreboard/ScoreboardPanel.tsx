@@ -1,4 +1,5 @@
 import { useSportsScoreboard } from "../../lib/sportsScores";
+import { LeagueBadge, leagueAccentClass } from "./LeagueBadge";
 
 const MAX_GAMES = 6;
 
@@ -27,12 +28,10 @@ export function ScoreboardPanel() {
             return (
               <div
                 key={g.id}
-                className="flex items-center justify-between rounded-lg border border-surface-border bg-surface px-3 py-2"
+                className={`flex items-center justify-between rounded-lg border border-surface-border border-l-2 bg-surface px-3 py-2 ${leagueAccentClass(g.league)}`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full border border-surface-border px-1.5 py-0.5 text-[10px] font-semibold uppercase text-text-dim">
-                    {leagueLabel(g.league)}
-                  </span>
+                  <LeagueBadge league={g.league} label={leagueLabel(g.league)} />
                   {isScheduled ? (
                     <div className="flex items-baseline gap-2 font-display">
                       <span className="text-text">{g.away.abbreviation}</span>

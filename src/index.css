@@ -194,3 +194,27 @@ h1, h2, h3 {
   border-color: var(--pb-accent);
   box-shadow: var(--pb-glow);
 }
+
+.pb-ticker {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.pb-ticker-track {
+  display: inline-flex;
+  gap: 2rem;
+}
+
+@keyframes pb-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pb-ticker[data-animated="true"] {
+    overflow: hidden;
+  }
+  .pb-ticker[data-animated="true"] .pb-ticker-track {
+    animation: pb-marquee 35s linear infinite;
+  }
+}

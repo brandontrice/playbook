@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import type { Concept, Sport } from "../types";
+import { ScoreboardPanel } from "../components/Scoreboard/ScoreboardPanel";
 
 function CardSkeleton() {
   return (
@@ -32,6 +33,10 @@ export function Home() {
       <p className="mb-8 text-text-dim">
         Real clips, broken down beat by beat, then the chalkboard version, then a quiz.
       </p>
+
+      <div className="mb-10">
+        <ScoreboardPanel />
+      </div>
 
       {loading && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

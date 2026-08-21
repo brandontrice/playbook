@@ -69,6 +69,7 @@ export function Home() {
   const [clipsByConcept, setClipsByConcept] = useState<Record<string, CardClip>>({});
   const [featured, setFeatured] = useState<FeaturedConcept | null>(null);
   const [loading, setLoading] = useState(true);
+  const [teamFilter, setTeamFilter] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -139,6 +140,44 @@ export function Home() {
 
       <div id="library" />
 
+      {!loading && (() => {
+        const teams = [...new Set(Object.values(clipsByConcept).map((c) => c.teams[0]).filter(Boolean))].sort();
+        if (teams.length === 0) return null;
+        return (
+          <div className="mb-6 flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-widest text-text-dim">Learn it through</span>
+            <button
+              type="button"
+              onClick={() => setTeamFilter(null)}
+              className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase ${
+                teamFilter === null ? "border-primary bg-primary text-black" : "border-surface-border text-text-dim"
+              }`}
+            >
+              All teams
+            </button>
+            {teams.map((team) => {
+              const tint = teamColor(team);
+              const active = teamFilter === team;
+              return (
+                <button
+                  key={team}
+                  type="button"
+                  onClick={() => setTeamFilter(active ? null : team)}
+                  className="rounded-full border px-3 py-1 text-xs font-semibold uppercase transition-colors"
+                  style={{
+                    borderColor: active ? tint ?? "var(--pb-primary)" : "var(--pb-surface-border)",
+                    background: active ? `${tint ?? "var(--pb-primary)"}33` : "transparent",
+                    color: active ? "var(--pb-text)" : "var(--pb-text-dim)",
+                  }}
+                >
+                  {team}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {loading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -149,7 +188,12 @@ export function Home() {
 
       {!loading &&
         sports.map((sport) => {
-          const sportConcepts = concepts.filter((c) => c.sport_id === sport.id && !c.parent_id);
+          const sportConcepts = concepts.filter(
+            (c) =>
+              c.sport_id === sport.id &&
+              !c.parent_id &&
+              (!teamFilter || clipsByConcept[c.id]?.teams.includes(teamFilter)),
+          );
           if (sportConcepts.length === 0) return null;
           return (
             <section key={sport.id} className="mb-10">
@@ -175,6 +219,27 @@ export function Home() {
           </p>
         </div>
       )}
+
+      {!loading &&
+        concepts.length > 0 &&
+        teamFilter &&
+        sports.every(
+          (sport) =>
+            concepts.filter(
+              (c) => c.sport_id === sport.id && !c.parent_id && clipsByConcept[c.id]?.teams.includes(teamFilter),
+            ).length === 0,
+        ) && (
+          <div className="rounded-[var(--radius-pb)] border border-dashed border-surface-border p-8 text-center text-text-dim">
+            <p className="font-display text-xl text-text">No {teamFilter} breakdowns yet.</p>
+            <p className="mt-1 text-sm">
+              Here's the closest thing:{" "}
+              <button type="button" onClick={() => setTeamFilter(null)} className="text-primary underline">
+                see every concept
+              </button>
+              .
+            </p>
+          </div>
+        )}
     </div>
   );
 }

@@ -53,8 +53,29 @@ export function ConceptDetail() {
     })();
   }, [slug]);
 
-  if (loading) return <p className="p-6 text-text-dim">Loading…</p>;
-  if (!concept) return <p className="p-6 text-text-dim">Concept not found.</p>;
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-10">
+        <div className="pb-skeleton h-6 w-24" />
+        <div className="pb-skeleton mt-3 h-9 w-2/3" />
+        <div className="pb-skeleton mt-6 h-64 w-full" />
+      </div>
+    );
+  }
+  if (!concept) {
+    return (
+      <div className="mx-auto max-w-3xl px-6 py-10 text-center text-text-dim">
+        <p className="font-display text-xl text-text">Air ball.</p>
+        <p className="mt-1 text-sm">
+          Couldn't find that concept.{" "}
+          <Link to="/" className="text-primary underline">
+            Back to the library
+          </Link>
+          .
+        </p>
+      </div>
+    );
+  }
 
   const activeBreakdown = breakdowns[activeClipIndex];
   const activeClip = activeBreakdown ? clipsById[activeBreakdown.clip_id] : null;

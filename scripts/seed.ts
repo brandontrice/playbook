@@ -576,6 +576,19 @@ async function main() {
 
     console.log(`seeded: ${c.title}`);
   }
+
+  // Belt and suspenders: retired-concept cleanup only catches orphans made
+  // by *this* run. Sweep for any clip left over from further back (a
+  // concept that got deleted some other way, a slug rename before
+  // RETIRED_SLUGS existed) so orphaned rows don't just accumulate forever.
+  const { data: linkedClips } = await supabase.from("clip_concepts").select("clip_id");
+  const linkedIds = new Set((linkedClips ?? []).map((r) => r.clip_id));
+  const { data: allClips } = await supabase.from("clips").select("id");
+  const orphanIds = (allClips ?? []).map((c) => c.id).filter((id) => !linkedIds.has(id));
+  if (orphanIds.length > 0) {
+    await supabase.from("clips").delete().in("id", orphanIds);
+    console.log(`removed ${orphanIds.length} orphaned clip(s)`);
+  }
 }
 
 main().then(() => {

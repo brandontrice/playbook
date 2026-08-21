@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Beat, Clip } from "../../types";
 import { useYouTubePlayer } from "./useYouTubePlayer";
+import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 
 function OverlaySvg({ beat }: { beat: Beat | null }) {
   if (!beat?.overlay) return null;
@@ -37,13 +38,25 @@ function OverlaySvg({ beat }: { beat: Beat | null }) {
 
 export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) {
   const sorted = [...beats].sort((a, b) => a.t - b.t);
-  const { containerRef, ready, playing, currentTime, play, pause, seekTo } = useYouTubePlayer(
+  const { containerRef, ready, playing, muted, currentTime, play, pause, seekTo, mute, unmute } = useYouTubePlayer(
     clip.youtube_id,
     clip.start_sec,
   );
   const [activeBeat, setActiveBeat] = useState<Beat | null>(null);
   const firedRef = useRef<Set<number>>(new Set());
   const resumeTimerRef = useRef<number | undefined>(undefined);
+
+  // The soundtrack and the film's own audio are mutually exclusive: unmuting
+  // the film stops the soundtrack, and if the soundtrack gets turned on from
+  // the nav while a clip is playing unmuted, mute the clip back down.
+  useEffect(() => onSoundtrackChange((playingTrack) => {
+    if (playingTrack) mute();
+  }), [mute]);
+
+  function unmuteFilm() {
+    stopSoundtrack();
+    unmute();
+  }
 
   useEffect(() => {
     if (!ready) return;
@@ -112,14 +125,24 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
               onClick={() => jumpTo(beat, i)}
               className="rounded-full border border-surface-border bg-surface px-3 py-1 text-xs text-text-dim hover:border-primary hover:text-text"
             >
-              {Math.floor(beat.t / 60)}:{String(Math.floor(beat.t % 60)).padStart(2, "0")} — {beat.caption.slice(0, 28)}
+              {Math.floor(beat.t / 60)}:{String(Math.floor(beat.t % 60)).padStart(2, "0")} · {beat.caption.slice(0, 28)}
               {beat.caption.length > 28 ? "…" : ""}
             </button>
           </li>
         ))}
       </ol>
 
-      <div className="text-xs text-text-dim">{playing ? "Playing" : "Paused"}</div>
+      <div className="flex items-center gap-3 text-xs text-text-dim">
+        <span>{playing ? "Playing" : "Paused"}</span>
+        <button
+          type="button"
+          onClick={muted ? unmuteFilm : mute}
+          aria-label={muted ? "Unmute film audio" : "Mute film audio"}
+          className="rounded-full border border-surface-border px-3 py-1 hover:border-primary hover:text-text"
+        >
+          {muted ? "🔇 Unmute film" : "🔊 Mute film"}
+        </button>
+      </div>
     </div>
   );
 }

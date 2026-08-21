@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
+import { SoundtrackToggle } from "./SoundtrackToggle";
 
 export function Nav() {
   return (
@@ -11,6 +12,7 @@ export function Nav() {
         <Link to="/admin" className="text-xs text-text-dim hover:text-text">
           Admin
         </Link>
+        <SoundtrackToggle />
         <ThemeToggle />
       </div>
     </header>

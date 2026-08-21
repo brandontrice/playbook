@@ -6,6 +6,8 @@ type YTPlayer = {
   pauseVideo(): void;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getCurrentTime(): number;
+  mute(): void;
+  unMute(): void;
   destroy(): void;
 };
 
@@ -53,6 +55,7 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
   const playerRef = useRef<YTPlayer | null>(null);
   const [ready, setReady] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(startSec);
 
   useEffect(() => {
@@ -63,7 +66,10 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
       if (cancelled || !containerRef.current || !window.YT) return;
       const player = new window.YT.Player(containerRef.current, {
         videoId,
-        playerVars: { start: Math.floor(startSec), playsinline: 1, rel: 0 },
+        // Muted autoplay is allowed by every browser's autoplay policy,
+        // unlike unmuted autoplay, which is why the clip starts muted and
+        // an explicit "unmute" control (see BreakdownPlayer) turns it on.
+        playerVars: { start: Math.floor(startSec), playsinline: 1, rel: 0, autoplay: 1, mute: 1 },
         events: {
           onReady: () => setReady(true),
           onStateChange: (e) => {
@@ -96,9 +102,18 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
     containerRef,
     ready,
     playing,
+    muted,
     currentTime,
     play: () => playerRef.current?.playVideo(),
     pause: () => playerRef.current?.pauseVideo(),
     seekTo: (s: number) => playerRef.current?.seekTo(s, true),
+    unmute: () => {
+      playerRef.current?.unMute();
+      setMuted(false);
+    },
+    mute: () => {
+      playerRef.current?.mute();
+      setMuted(true);
+    },
   };
 }

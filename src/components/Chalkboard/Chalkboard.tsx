@@ -15,11 +15,10 @@ export function Chalkboard({ diagram }: { diagram: Diagram }) {
   const { players, ball, annotations } = diagram.spec;
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-surface p-2">
-      <svg viewBox="0 0 100 60" role="img" aria-label={describeDiagram(diagram)} className="h-auto w-full">
-        <rect x={0} y={0} width={100} height={60} fill="var(--pb-bg-2)" />
-        <rect x={1} y={1} width={98} height={58} fill="none" stroke="var(--pb-text-dim)" strokeWidth={0.4} />
-        <circle cx={50} cy={30} r={8} fill="none" stroke="var(--pb-text-dim)" strokeWidth={0.4} />
+    <div className="pb-chalk overflow-hidden rounded-[var(--radius-pb)] border p-2">
+      <svg viewBox="0 0 100 60" role="img" aria-label={describeDiagram(diagram)} className="relative z-10 h-auto w-full">
+        <rect x={1} y={1} width={98} height={58} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={0.4} strokeDasharray="1.2 1" />
+        <circle cx={50} cy={30} r={8} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={0.4} strokeDasharray="1.2 1" />
 
         {annotations.map((a, i) => {
           if (a.type === "arrow") {

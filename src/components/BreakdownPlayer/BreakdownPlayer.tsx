@@ -117,7 +117,7 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
   return (
     <div className="flex flex-col gap-3">
       <div
-        className={`relative w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black ${
+        className={`pb-grain relative w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black ${
           isPortrait ? "h-[70vh] max-h-[640px]" : "aspect-video"
         }`}
       >
@@ -131,6 +131,10 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
         )}
         <div className={`relative h-full ${isPortrait ? "mx-auto aspect-[9/16]" : "w-full"}`}>
           <div ref={containerRef} className="h-full w-full" />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.4) 100%)" }}
+          />
           <OverlaySvg beat={activeBeat} />
           {activeBeat && (
             <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 to-transparent p-4">

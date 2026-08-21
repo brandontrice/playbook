@@ -34,7 +34,7 @@ export function ChatPanel({ conceptSlug }: { conceptSlug: string }) {
       const data = await res.json();
       setMessages((m) => [...m, { role: "assistant", content: data.reply as string }]);
     } catch {
-      setError("Couldn't reach the chat right now — try again in a bit.");
+      setError("Couldn't reach the chat right now, try again in a bit.");
     } finally {
       setLoading(false);
     }

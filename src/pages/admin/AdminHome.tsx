@@ -5,7 +5,7 @@ import type { Concept, Sport } from "../../types";
 const BEATS_TEMPLATE = `[
   { "t": 4.5, "action": "pause", "caption": "Watch the screener's angle here.",
     "overlay": { "arrows": [{ "x1": 30, "y1": 60, "x2": 45, "y2": 40 }] } },
-  { "t": 9, "action": "pause", "caption": "That's the slip — weak-side help never rotates in time.",
+  { "t": 9, "action": "pause", "caption": "That's the slip, weak-side help never rotates in time.",
     "resume_after": 3 }
 ]`;
 
@@ -142,7 +142,7 @@ export function AdminHome() {
       flash(error ? error.message : "Breakdown created.");
       e.currentTarget.reset();
     } catch {
-      flash("Beats JSON is invalid — check the format.");
+      flash("Beats JSON is invalid, check the format.");
     }
   }
 
@@ -158,7 +158,7 @@ export function AdminHome() {
       flash(error ? error.message : "Diagram created.");
       e.currentTarget.reset();
     } catch {
-      flash("Diagram JSON is invalid — check the format.");
+      flash("Diagram JSON is invalid, check the format.");
     }
   }
 
@@ -176,7 +176,7 @@ export function AdminHome() {
       flash(error ? error.message : "Quiz item created.");
       e.currentTarget.reset();
     } catch {
-      flash("Choices JSON is invalid — check the format.");
+      flash("Choices JSON is invalid, check the format.");
     }
   }
 
@@ -216,7 +216,7 @@ export function AdminHome() {
       <Section title="Clip">
         <form onSubmit={createClip} className="flex flex-col gap-2">
           <TextInput name="youtube_id" placeholder="YouTube video ID (e.g. dQw4w9WgXcQ)" required />
-          <TextInput name="title" placeholder="Nuggets vs Lakers — Spain PnR" required />
+          <TextInput name="title" placeholder="Nuggets vs Lakers, Spain PnR" required />
           <TextInput name="start_sec" type="number" placeholder="Start second" />
           <TextInput name="teams" placeholder="DEN, LAL (comma separated)" />
           <TextInput name="players" placeholder="Jokic, Murray (comma separated)" />

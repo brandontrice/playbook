@@ -4,7 +4,7 @@
 -- Sports concept library + synced film-breakdown player + chalkboard diagrams
 -- + quiz items. Public read on all content tables; writes restricted to the
 -- admin email via RLS (checked against auth.jwt()). embedding columns are
--- present now (pgvector) but unused until v1.1's RAG upgrade — v1's AI chat
+-- present now (pgvector) but unused until v1.1's RAG upgrade, v1's AI chat
 -- stuffs the small concept corpus into the prompt directly instead.
 
 create extension if not exists vector;

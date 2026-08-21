@@ -1,14 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
-// Corpus-stuffed chat, not RAG — fine while the concept library is small
+// Corpus-stuffed chat, not RAG. Fine while the concept library is small
 // (a handful of concepts). Upgrade to real pgvector retrieval in v1.1 once
 // the library outgrows what fits comfortably in a system prompt.
 
 const DIFFICULTY_INSTRUCTIONS: Record<string, string> = {
   new: "The user has never watched this sport. Avoid jargon entirely, or define it immediately in plain language the first time you use it.",
   casual: "The user watches casually and knows the basics. You can use common terms without defining them, but keep explanations grounded and concrete.",
-  "hoops-head": "The user knows the sport well. Go deep — technique, spacing, timing, counters — without over-explaining fundamentals.",
+  "hoops-head": "The user knows the sport well. Go deep: technique, spacing, timing, counters, without over-explaining fundamentals.",
 };
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -52,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const difficultyLine = DIFFICULTY_INSTRUCTIONS[difficulty ?? "casual"] ?? DIFFICULTY_INSTRUCTIONS.casual;
 
-  const systemPrompt = `You are Playbook's film-room explainer — you teach sports concepts the way a good coach breaks down tape, grounded in real examples. ${difficultyLine}
+  const systemPrompt = `You are Playbook's film-room explainer. You teach sports concepts the way a good coach breaks down tape, grounded in real examples. ${difficultyLine}
 
 Only use the concept library below as ground truth for specifics (names of plays/coverages, how they work, counters). If something isn't covered by it, say so plainly rather than inventing detail.
 

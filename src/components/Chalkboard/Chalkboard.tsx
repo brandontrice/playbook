@@ -1,11 +1,22 @@
 import type { Diagram } from "../../types";
 
+function describeDiagram(diagram: Diagram): string {
+  const { players, annotations } = diagram.spec;
+  const roster = players
+    .map((p) => `${p.id} (${p.team})`)
+    .join(", ");
+  const notes = annotations
+    .map((a) => ("label" in a && a.label ? a.label : a.type === "label" ? a.text : a.type))
+    .join(", ");
+  return `Chalkboard diagram on a ${diagram.surface.replace(/([A-Z])/g, " $1")}. Players: ${roster}. Movement: ${notes}.`;
+}
+
 export function Chalkboard({ diagram }: { diagram: Diagram }) {
   const { players, ball, annotations } = diagram.spec;
 
   return (
     <div className="overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-surface p-2">
-      <svg viewBox="0 0 100 60" className="h-auto w-full">
+      <svg viewBox="0 0 100 60" role="img" aria-label={describeDiagram(diagram)} className="h-auto w-full">
         <rect x={0} y={0} width={100} height={60} fill="var(--pb-bg-2)" />
         <rect x={1} y={1} width={98} height={58} fill="none" stroke="var(--pb-text-dim)" strokeWidth={0.4} />
         <circle cx={50} cy={30} r={8} fill="none" stroke="var(--pb-text-dim)" strokeWidth={0.4} />

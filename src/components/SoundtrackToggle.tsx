@@ -19,6 +19,7 @@ export function SoundtrackToggle() {
       type="button"
       onClick={() => toggleSoundtrack(theme)}
       aria-label={playing ? "Stop soundtrack" : "Play soundtrack"}
+      aria-pressed={playing}
       title={playing ? "Stop soundtrack" : "Play ambient soundtrack (generated, not the film audio)"}
       className={`rounded-full border px-3 py-1.5 text-xs ${
         playing ? "border-primary bg-primary/20 text-text" : "border-surface-border text-text-dim"

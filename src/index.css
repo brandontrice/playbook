@@ -286,3 +286,44 @@ h1, h2, h3 {
   opacity: 0.09;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
 }
+
+/* the coach's marker actually drawing the arrow, not popping in */
+.pb-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pb-draw {
+    stroke-dashoffset: 1;
+    animation: pb-draw-in 500ms ease-out forwards;
+  }
+}
+
+@keyframes pb-draw-in {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* lower-third caption slide-in, and chrome (scrubber/play button) fade */
+.pb-lower-third {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pb-lower-third {
+    animation: pb-slide-in 250ms ease-out;
+  }
+}
+
+@keyframes pb-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

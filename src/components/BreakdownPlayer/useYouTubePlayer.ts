@@ -6,6 +6,7 @@ type YTPlayer = {
   pauseVideo(): void;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   getCurrentTime(): number;
+  getDuration(): number;
   mute(): void;
   unMute(): void;
   destroy(): void;
@@ -57,6 +58,7 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
   const [currentTime, setCurrentTime] = useState(startSec);
+  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,7 +71,9 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
         // Muted autoplay is allowed by every browser's autoplay policy,
         // unlike unmuted autoplay, which is why the clip starts muted and
         // an explicit "unmute" control (see BreakdownPlayer) turns it on.
-        playerVars: { start: Math.floor(startSec), playsinline: 1, rel: 0, autoplay: 1, mute: 1 },
+        // controls: 0 hides YouTube's own control bar, BreakdownPlayer
+        // draws its own cinematic scrubber/play button on top instead.
+        playerVars: { start: Math.floor(startSec), playsinline: 1, rel: 0, autoplay: 1, mute: 1, controls: 0 },
         events: {
           onReady: () => setReady(true),
           onStateChange: (e) => {
@@ -87,6 +91,7 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
       const tick = () => {
         if (playerRef.current && typeof playerRef.current.getCurrentTime === "function") {
           setCurrentTime(playerRef.current.getCurrentTime());
+          setDuration(playerRef.current.getDuration() || 0);
         }
         raf = requestAnimationFrame(tick);
       };
@@ -108,6 +113,7 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
     playing,
     muted,
     currentTime,
+    duration,
     play: () => playerRef.current?.playVideo(),
     pause: () => playerRef.current?.pauseVideo(),
     seekTo: (s: number) => playerRef.current?.seekTo(s, true),

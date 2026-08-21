@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Beat, Clip } from "../../types";
 import { useYouTubePlayer } from "./useYouTubePlayer";
 import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
@@ -12,10 +12,17 @@ import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 // never goes away, reading as a broken video rather than an intentional
 // annotation.
 const DEFAULT_RESUME_AFTER = 3;
+// Chrome (scrubber/play button) auto-hides after this many idle ms while playing.
+const CHROME_IDLE_MS = 2500;
 
 function resumeDelayFor(beat: Beat): number | null {
   if (beat.resume_after === null) return null;
   return beat.resume_after ?? DEFAULT_RESUME_AFTER;
+}
+
+function formatTime(seconds: number) {
+  const s = Math.max(0, Math.floor(seconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
 function OverlaySvg({ beat }: { beat: Beat | null }) {
@@ -38,28 +45,120 @@ function OverlaySvg({ beat }: { beat: Beat | null }) {
             y1={a.y1}
             x2={a.x2}
             y2={a.y2}
+            pathLength={1}
             stroke="var(--pb-accent)"
             strokeWidth={0.8}
+            className="pb-draw"
             markerEnd={`url(#arrowhead-${i})`}
           />
         </g>
       ))}
       {beat.overlay.circles?.map((c, i) => (
-        <circle key={i} cx={c.x} cy={c.y} r={c.r} fill="none" stroke="var(--pb-primary)" strokeWidth={0.8} />
+        <circle
+          key={i}
+          cx={c.x}
+          cy={c.y}
+          r={c.r}
+          pathLength={1}
+          fill="none"
+          stroke="var(--pb-primary)"
+          strokeWidth={0.8}
+          className="pb-draw"
+        />
       ))}
     </svg>
   );
 }
 
+function Scrubber({
+  currentTime,
+  duration,
+  beats,
+  onSeek,
+}: {
+  currentTime: number;
+  duration: number;
+  beats: Beat[];
+  onSeek: (t: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [hoverBeat, setHoverBeat] = useState<Beat | null>(null);
+  const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
+
+  function seekFromClientX(clientX: number) {
+    if (!trackRef.current || duration <= 0) return;
+    const rect = trackRef.current.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    onSeek(ratio * duration);
+  }
+
+  return (
+    <div className="relative flex-1">
+      <div
+        ref={trackRef}
+        onClick={(e) => seekFromClientX(e.clientX)}
+        role="slider"
+        aria-label="Seek"
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration)}
+        aria-valuenow={Math.round(currentTime)}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") onSeek(Math.min(duration, currentTime + 5));
+          if (e.key === "ArrowLeft") onSeek(Math.max(0, currentTime - 5));
+        }}
+        className="relative h-1.5 w-full cursor-pointer rounded-full bg-white/25"
+      >
+        <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+        {duration > 0 &&
+          beats.map((b, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSeek(b.t);
+              }}
+              onPointerEnter={() => setHoverBeat(b)}
+              onPointerLeave={() => setHoverBeat(null)}
+              aria-label={`Jump to: ${b.caption}`}
+              className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border border-black/40 bg-accent"
+              style={{ left: `${(b.t / duration) * 100}%` }}
+            />
+          ))}
+      </div>
+      {hoverBeat && duration > 0 && (
+        <div
+          className="pointer-events-none absolute bottom-full mb-2 w-max max-w-[220px] -translate-x-1/2 rounded-md bg-black/90 px-2 py-1 text-xs text-white"
+          style={{ left: `${(hoverBeat.t / duration) * 100}%` }}
+        >
+          {hoverBeat.caption}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) {
   const sorted = [...beats].sort((a, b) => a.t - b.t);
-  const { containerRef, ready, playing, muted, currentTime, play, pause, seekTo, mute, unmute } = useYouTubePlayer(
-    clip.youtube_id,
-    clip.start_sec,
-  );
+  const {
+    containerRef,
+    ready,
+    playing,
+    muted,
+    currentTime,
+    duration,
+    play,
+    pause,
+    seekTo,
+    mute,
+    unmute,
+  } = useYouTubePlayer(clip.youtube_id, clip.start_sec);
   const [activeBeat, setActiveBeat] = useState<Beat | null>(null);
+  const [showChrome, setShowChrome] = useState(true);
   const firedRef = useRef<Set<number>>(new Set());
   const resumeTimerRef = useRef<number | undefined>(undefined);
+  const chromeTimerRef = useRef<number | undefined>(undefined);
 
   // The soundtrack and the film's own audio are mutually exclusive: unmuting
   // the film stops the soundtrack, and if the soundtrack gets turned on from
@@ -98,6 +197,20 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTime, ready]);
 
+  // Theater mode: chrome (scrubber/play button) fades after a beat of idle
+  // time while playing, and comes right back on any pointer activity.
+  function bumpChrome() {
+    setShowChrome(true);
+    window.clearTimeout(chromeTimerRef.current);
+    if (playing) {
+      chromeTimerRef.current = window.setTimeout(() => setShowChrome(false), CHROME_IDLE_MS);
+    }
+  }
+  useEffect(() => {
+    bumpChrome();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing]);
+
   function jumpTo(beat: Beat, index: number) {
     window.clearTimeout(resumeTimerRef.current);
     firedRef.current = new Set(sorted.slice(0, index).map((_, i) => i));
@@ -106,17 +219,48 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
     play();
   }
 
+  function seekAndReconcile(t: number) {
+    // A manual scrub can land anywhere, ahead of or behind the beats fired
+    // so far, so recompute which beats "already happened" from scratch
+    // rather than only supporting sequential jumpTo.
+    window.clearTimeout(resumeTimerRef.current);
+    firedRef.current = new Set(sorted.map((b, i) => (b.t <= t ? i : -1)).filter((i) => i >= 0));
+    seekTo(t);
+    setActiveBeat(null);
+  }
+
   function continuePlaying() {
     window.clearTimeout(resumeTimerRef.current);
     setActiveBeat(null);
     play();
   }
 
+  // Press-and-hold on the active caption pauses for as long as it's held,
+  // release resumes, no forced stop the way a straight "pause" beat can be.
+  function startHold(e: ReactPointerEvent) {
+    e.preventDefault();
+    if (!activeBeat) return;
+    window.clearTimeout(resumeTimerRef.current);
+    pause();
+  }
+  function endHold() {
+    if (!activeBeat) return;
+    const delay = resumeDelayFor(activeBeat);
+    if (activeBeat.action === "pause" && delay === null) return; // stays paused, Continue button handles it
+    play();
+    if (delay !== null) {
+      resumeTimerRef.current = window.setTimeout(() => setActiveBeat(null), delay * 1000);
+    }
+  }
+
   const isPortrait = clip.orientation === "portrait";
+  const needsContinueClick = activeBeat?.action === "pause" && resumeDelayFor(activeBeat) === null;
 
   return (
     <div className="flex flex-col gap-3">
       <div
+        onPointerMove={bumpChrome}
+        onPointerDown={bumpChrome}
         className={`pb-grain relative w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black ${
           isPortrait ? "h-[70vh] max-h-[640px]" : "aspect-video"
         }`}
@@ -135,21 +279,61 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
             className="pointer-events-none absolute inset-0"
             style={{ background: "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.4) 100%)" }}
           />
-          <OverlaySvg beat={activeBeat} />
+          <OverlaySvg key={activeBeat ? `${activeBeat.t}` : "none"} beat={activeBeat} />
+
+          {muted && (
+            <button
+              type="button"
+              onClick={unmuteFilm}
+              aria-label="Unmute film audio"
+              title="Unmute film audio"
+              className="absolute right-3 top-3 rounded-full bg-black/60 p-2 text-white backdrop-blur-sm hover:bg-black/80"
+            >
+              🔇
+            </button>
+          )}
+
           {activeBeat && (
-            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 to-transparent p-4">
-              <p className="font-display text-lg text-white">{activeBeat.caption}</p>
-              {activeBeat.action === "pause" && resumeDelayFor(activeBeat) === null && (
-                <button
-                  type="button"
-                  onClick={continuePlaying}
-                  className="w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-black"
-                >
-                  Continue ▶
-                </button>
-              )}
+            <div
+              onPointerDown={startHold}
+              onPointerUp={endHold}
+              onPointerLeave={endHold}
+              className="pb-lower-third absolute bottom-12 left-0 max-w-[85%] cursor-pointer select-none px-3 sm:bottom-14"
+            >
+              <div className="border-l-4 border-accent bg-black/85 py-2.5 pl-3 pr-4 backdrop-blur-sm">
+                <p className="font-display text-lg leading-tight text-white">{activeBeat.caption}</p>
+                {needsContinueClick && (
+                  <button
+                    type="button"
+                    onClick={continuePlaying}
+                    className="mt-2 w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-black"
+                  >
+                    Continue ▶
+                  </button>
+                )}
+              </div>
             </div>
           )}
+
+          {/* custom chrome: replaces YouTube's native controls entirely */}
+          <div
+            className={`absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-black/85 to-transparent px-3 py-2.5 transition-opacity duration-300 ${
+              showChrome ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => (playing ? pause() : play())}
+              aria-label={playing ? "Pause" : "Play"}
+              className="text-lg text-white"
+            >
+              {playing ? "⏸" : "▶"}
+            </button>
+            <Scrubber currentTime={currentTime} duration={duration} beats={sorted} onSeek={seekAndReconcile} />
+            <span className="pb-numeral shrink-0 text-xs text-white">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -167,27 +351,13 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
                     : "border-surface-border bg-surface hover:border-primary/60"
                 }`}
               >
-                <span className="mt-0.5 shrink-0 font-display tabular-nums text-text-dim">
-                  {Math.floor(beat.t / 60)}:{String(Math.floor(beat.t % 60)).padStart(2, "0")}
-                </span>
+                <span className="pb-numeral mt-0.5 shrink-0 text-text-dim">{formatTime(beat.t)}</span>
                 <span className={isActive ? "text-text" : "text-text-dim"}>{beat.caption}</span>
               </button>
             </li>
           );
         })}
       </ol>
-
-      <div className="flex items-center gap-3 text-xs text-text-dim">
-        <span>{playing ? "Playing" : "Paused"}</span>
-        <button
-          type="button"
-          onClick={muted ? unmuteFilm : mute}
-          aria-label={muted ? "Unmute film audio" : "Mute film audio"}
-          className="rounded-full border border-surface-border px-3 py-1 hover:border-primary hover:text-text"
-        >
-          {muted ? "🔇 Unmute film" : "🔊 Mute film"}
-        </button>
-      </div>
     </div>
   );
 }

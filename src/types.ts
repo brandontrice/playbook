@@ -77,6 +77,14 @@ export type QuizItem = {
   answer_idx: number;
 };
 
+export type Collection = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  sort_order: number;
+};
+
 export type ConceptWithRelations = Concept & {
   sport?: Sport;
   clips?: (Clip & { breakdown?: Breakdown })[];

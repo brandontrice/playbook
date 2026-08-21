@@ -100,6 +100,24 @@ create table if not exists concept_links (
   primary key (from_id, to_id, relation)
 );
 
+-- a curated, ordered sequence of concepts ("Defense 101: 5 concepts in
+-- order"), a "start here" for a new visitor instead of a flat library
+create table if not exists collections (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  title text not null,
+  description text,
+  sort_order int not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists collection_concepts (
+  collection_id uuid not null references collections(id) on delete cascade,
+  concept_id uuid not null references concepts(id) on delete cascade,
+  sort_order int not null default 0,
+  primary key (collection_id, concept_id)
+);
+
 -- created now, wired up in v1.1 once real user accounts exist
 create table if not exists user_progress (
   user_id uuid not null,
@@ -142,6 +160,8 @@ alter table diagrams enable row level security;
 alter table quiz_items enable row level security;
 alter table concept_links enable row level security;
 alter table user_progress enable row level security;
+alter table collections enable row level security;
+alter table collection_concepts enable row level security;
 
 do $$
 declare
@@ -149,7 +169,8 @@ declare
 begin
   for t in select unnest(array[
     'sports', 'concepts', 'clips', 'clip_concepts',
-    'breakdowns', 'diagrams', 'quiz_items', 'concept_links'
+    'breakdowns', 'diagrams', 'quiz_items', 'concept_links',
+    'collections', 'collection_concepts'
   ])
   loop
     execute format('drop policy if exists %I_public_read on %I', t, t);

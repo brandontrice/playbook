@@ -7,6 +7,8 @@ import { ScoreTicker } from "./components/Scoreboard/ScoreTicker";
 import { Home } from "./pages/Home";
 import { ConceptDetail } from "./pages/ConceptDetail";
 import { Pricing } from "./pages/Pricing";
+import { Collections } from "./pages/Collections";
+import { CollectionDetail } from "./pages/CollectionDetail";
 
 // The authoring UI is only ever used by one person, code-splitting it out
 // keeps it from shipping in the bundle every regular visitor downloads.
@@ -25,6 +27,8 @@ function AppRoutes() {
       <Routes location={location}>
         <Route path="/" element={<Home />} />
         <Route path="/concepts/:slug" element={<ConceptDetail />} />
+        <Route path="/collections" element={<Collections />} />
+        <Route path="/collections/:slug" element={<CollectionDetail />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route
           path="/compare"

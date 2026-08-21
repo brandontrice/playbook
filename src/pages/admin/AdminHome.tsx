@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
-import type { Concept, Sport } from "../../types";
+import type { Collection, Concept, Sport } from "../../types";
 
 const BULK_CLIPS_TEMPLATE = `dQw4w9WgXcQ,Nuggets vs Lakers Spain PnR,124,DEN|LAL,Jokic|Murray,2023-24,canonical,landscape`;
 const BULK_CONCEPTS_TEMPLATE = `basketball,Spain Pick-and-Roll,spain-pnr,A back screen on the screener's defender,3`;
@@ -157,16 +157,31 @@ export function AdminHome() {
   const [rawBeatsJson, setRawBeatsJson] = useState("[]");
   const [bulkConceptsText, setBulkConceptsText] = useState("");
   const [bulkClipsText, setBulkClipsText] = useState("");
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [collectionMembers, setCollectionMembers] = useState<Record<string, { concept_id: string; title: string }[]>>({});
 
   async function refresh() {
-    const [s, c, cl] = await Promise.all([
+    const [s, c, cl, coll, links] = await Promise.all([
       supabase.from("sports").select("*").order("name"),
       supabase.from("concepts").select("*").order("sort_order"),
       supabase.from("clips").select("id,title").order("title"),
+      supabase.from("collections").select("*").order("sort_order"),
+      supabase.from("collection_concepts").select("collection_id, concept_id, sort_order, concepts(title)").order("sort_order"),
     ]);
     setSports(s.data ?? []);
     setConcepts(c.data ?? []);
     setClips(cl.data ?? []);
+    setCollections(coll.data ?? []);
+
+    const membersByCollection: Record<string, { concept_id: string; title: string }[]> = {};
+    for (const row of links.data ?? []) {
+      const concept = row.concepts as unknown as { title: string } | null;
+      (membersByCollection[row.collection_id] ??= []).push({
+        concept_id: row.concept_id,
+        title: concept?.title ?? "(unknown concept)",
+      });
+    }
+    setCollectionMembers(membersByCollection);
   }
 
   useEffect(() => {
@@ -284,6 +299,43 @@ export function AdminHome() {
     }
   }
 
+  async function createCollection(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const { error } = await supabase.from("collections").insert({
+      title: form.get("title"),
+      slug: form.get("slug"),
+      description: form.get("description") || null,
+      sort_order: Number(form.get("sort_order")) || 0,
+    });
+    flash(error ? error.message : "Collection created.");
+    e.currentTarget.reset();
+    refresh();
+  }
+
+  async function addToCollection(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const { error } = await supabase.from("collection_concepts").insert({
+      collection_id: form.get("collection_id"),
+      concept_id: form.get("concept_id"),
+      sort_order: Number(form.get("sort_order")) || 0,
+    });
+    flash(error ? error.message : "Added to collection.");
+    e.currentTarget.reset();
+    refresh();
+  }
+
+  async function removeFromCollection(collectionId: string, conceptId: string) {
+    const { error } = await supabase
+      .from("collection_concepts")
+      .delete()
+      .eq("collection_id", collectionId)
+      .eq("concept_id", conceptId);
+    flash(error ? error.message : "Removed.");
+    refresh();
+  }
+
   async function createBreakdown(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
@@ -386,6 +438,63 @@ export function AdminHome() {
                   >
                     Preview ↗
                   </a>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Collections">
+            <form onSubmit={createCollection} className="mb-3 flex flex-col gap-2">
+              <TextInput name="title" placeholder="Defense 101" required />
+              <TextInput name="slug" placeholder="defense-101" required />
+              <TextInput name="description" placeholder="One-line description" />
+              <TextInput name="sort_order" type="number" placeholder="Sort order (lower first)" />
+              <SubmitButton label="Add collection" />
+            </form>
+
+            <form onSubmit={addToCollection} className="mb-4 flex flex-wrap items-end gap-2 border-t border-surface-border pt-3">
+              <select name="collection_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Collection…</option>
+                {collections.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Concept…</option>
+                {concepts.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <TextInput name="sort_order" type="number" placeholder="Order" />
+              <SubmitButton label="Add to collection" />
+            </form>
+
+            <div className="flex flex-col gap-3">
+              {collections.length === 0 && <p className="text-xs text-text-dim">No collections yet.</p>}
+              {collections.map((coll) => (
+                <div key={coll.id} className="rounded-lg bg-bg-2 p-2.5">
+                  <p className="text-xs font-semibold text-text">{coll.title}</p>
+                  <div className="mt-1 flex flex-col gap-1">
+                    {(collectionMembers[coll.id] ?? []).map((m) => (
+                      <div key={m.concept_id} className="flex items-center justify-between gap-2 text-xs text-text-dim">
+                        <span className="truncate">{m.title}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCollection(coll.id, m.concept_id)}
+                          className="shrink-0 text-accent-2 hover:underline"
+                        >
+                          remove
+                        </button>
+                      </div>
+                    ))}
+                    {(collectionMembers[coll.id] ?? []).length === 0 && (
+                      <p className="text-xs text-text-dim">Empty.</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

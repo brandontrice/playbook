@@ -30,8 +30,8 @@ Committed to one theme, **MyPark**. Showtime's tokens are still fully defined in
 
 ## Admin / authoring
 
-`/admin` is gated to a single admin email (`btrice9595@gmail.com`) via Supabase magic-link auth and RLS policies in `schema.sql`. Sign in there to add sports, concepts, clips, breakdowns (the beat timeline), chalkboard diagrams, and quiz items, one at a time or several at once via the bulk-import textareas. Beats/diagram/quiz shapes are JSON textareas for now (see the templates in the form), not yet a visual editor. The "Existing concepts" list has a "Preview" link per concept, opening the live page in a new tab.
+`/admin` is gated to a single admin email (`btrice9595@gmail.com`) via Supabase magic-link auth and RLS policies in `schema.sql`. Sign in there to add sports, concepts, clips, breakdowns (the beat timeline), chalkboard diagrams, quiz items, and collections (curated ordered concept sequences, shown as a "Start here" rail on the homepage and at `/collections`), one at a time or several at once via the bulk-import textareas. Beats/diagram/quiz shapes are JSON textareas for now (see the templates in the form), not yet a visual editor. The "Existing concepts" list has a "Preview" link per concept, opening the live page in a new tab.
 
 ## What's still deferred
 
-True pgvector RAG for chat (v1 stuffs the whole, currently small, concept corpus into the prompt instead, see `RAG_UPGRADE_THRESHOLD` in `api/chat.ts`), Remotion → TikTok export, a multi-frame animated diagram player, and curated concept collections/learning paths. See the project plan for the full list.
+True pgvector RAG for chat (v1 stuffs the whole, currently small, concept corpus into the prompt instead, see `RAG_UPGRADE_THRESHOLD` in `api/chat.ts`), Remotion → TikTok export, and a multi-frame animated diagram player. See the project plan for the full list.

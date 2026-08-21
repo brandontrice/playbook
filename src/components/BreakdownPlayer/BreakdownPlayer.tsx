@@ -11,7 +11,7 @@ import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 // would sit there forever, either stuck on pause or with a caption that
 // never goes away, reading as a broken video rather than an intentional
 // annotation.
-const DEFAULT_RESUME_AFTER = 2.5;
+const DEFAULT_RESUME_AFTER = 3;
 
 function resumeDelayFor(beat: Beat): number | null {
   if (beat.resume_after === null) return null;

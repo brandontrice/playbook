@@ -53,7 +53,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Curry just passed, watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
-      { t: 6, action: "note", caption: "He's relocated to a new catch spot before the defense could recover.", resume_after: 2 },
+      { t: 6, action: "note", caption: "He's relocating to a brand new catch spot before the defense can recover." },
+      { t: 10, action: "note", caption: "That's why it works: the defender has to fight through traffic to get back to the same spot, every single time." },
     ],
     diagram: {
       players: [
@@ -98,7 +99,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Live dribble, defender square, this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 5, action: "note", caption: "The push-back happens as the gather starts, separation before the rise, not during it.", resume_after: 2 },
+      { t: 5, action: "note", caption: "The push-back happens as the gather starts, separation before the rise, not during it." },
+      { t: 9, action: "note", caption: "A full stride of space in half a second, no closeout recovers in time to contest that." },
     ],
     diagram: {
       players: [
@@ -142,7 +144,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Watch his hips, not the ball, that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 5, action: "note", caption: "One beat of hesitation bought him the space to finish.", resume_after: 2 },
+      { t: 5, action: "note", caption: "One beat of hesitation bought him the space to finish." },
+      { t: 9, action: "note", caption: "It's timing, not speed, which is why it works just as well against faster, longer defenders too." },
     ],
     diagram: {
       players: [
@@ -185,7 +188,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "He starts on the weak side, this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
-      { t: 5, action: "note", caption: "Straight up, not across the body, that's verticality, not a foul.", resume_after: 2 },
+      { t: 5, action: "note", caption: "Straight up, not across the body, that's verticality, not a foul." },
+      { t: 9, action: "note", caption: "Contesting like this is both safer for him and tougher for the shooter than a lunging chase-down block." },
     ],
     diagram: {
       players: [
@@ -228,7 +232,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Watch where his eyes are pointed versus where the ball actually goes.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
-      { t: 5, action: "note", caption: "The pass is already gone before the defense fully reacted, that's the read made early.", resume_after: 2 },
+      { t: 5, action: "note", caption: "The pass is already gone before the defense fully reacted, that's the read made early." },
+      { t: 9, action: "note", caption: "He's not reacting to who's open, he's already throwing to where someone's about to be open." },
     ],
     diagram: {
       players: [
@@ -271,7 +276,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Defender's flying in hard, that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
-      { t: 4, action: "note", caption: "One dribble and he's already by, the closeout's own momentum beat itself.", resume_after: 2 },
+      { t: 4, action: "note", caption: "One dribble and he's already by, the closeout's own momentum beat itself." },
+      { t: 8, action: "note", caption: "A fast, off-balance closeout is easier to beat than a defender who just stood their ground." },
     ],
     diagram: {
       players: [
@@ -312,7 +318,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Hard plant to the side, not backward, watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
-      { t: 5, action: "note", caption: "Defender's weight is still going the other way when the shot goes up.", resume_after: 2 },
+      { t: 5, action: "note", caption: "Defender's weight is still going the other way when the shot goes up." },
+      { t: 9, action: "note", caption: "Same idea as a step-back, just a smaller, quicker motion that's harder to see coming." },
     ],
     diagram: {
       players: [
@@ -353,7 +360,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Slow, controlled dribble, he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 4, action: "note", caption: "Sudden burst into the body, that contact reads as a foul.", resume_after: 2 },
+      { t: 4, action: "note", caption: "Sudden burst into the body, that contact reads as a foul." },
+      { t: 8, action: "note", caption: "Refs read sudden, decisive contact from the ball-handler as a foul far more readily than a set defender." },
     ],
     diagram: {
       players: [
@@ -394,7 +402,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Screen coming, watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
-      { t: 5, action: "note", caption: "No gap, no mismatch, he just picked up the new assignment clean.", resume_after: 2 },
+      { t: 5, action: "note", caption: "No gap, no mismatch, he just picked up the new assignment clean." },
+      { t: 9, action: "note", caption: "That's real switchability: size for the bigs and quickness for the guards, both at once." },
     ],
     diagram: {
       players: [
@@ -436,7 +445,8 @@ const CONCEPTS: SeedConcept[] = [
     },
     beats: [
       { t: 2, action: "note", caption: "Watch his eyes before the pass, he's already tracking where the cutter is about to be.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 5, action: "note", caption: "The pass goes to a spot the defense hasn't reacted to yet, not to where the cutter already is.", resume_after: 2 },
+      { t: 5, action: "note", caption: "The pass goes to a spot the defense hasn't reacted to yet, not to where the cutter already is." },
+      { t: 9, action: "note", caption: "By the time the defense reacts to the actual movement, the ball's already gone." },
     ],
     diagram: {
       players: [

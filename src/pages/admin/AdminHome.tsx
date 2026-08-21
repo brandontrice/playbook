@@ -2,6 +2,10 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Concept, Sport } from "../../types";
 
+// A "pause" beat auto-resumes after ~2.5s by default (no need to set
+// resume_after for that). Set resume_after to a number for a custom delay,
+// or to null if you genuinely want it to wait for a manual "Continue"
+// click (e.g. a quiz-style "guess what happens next" moment).
 const BEATS_TEMPLATE = `[
   { "t": 4.5, "action": "pause", "caption": "Watch the screener's angle here.",
     "overlay": { "arrows": [{ "x1": 30, "y1": 60, "x2": 45, "y2": 40 }] } },

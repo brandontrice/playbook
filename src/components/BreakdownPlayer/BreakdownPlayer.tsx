@@ -3,6 +3,19 @@ import type { Beat, Clip } from "../../types";
 import { useYouTubePlayer } from "./useYouTubePlayer";
 import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 
+// A pause beat auto-resumes after this many seconds unless it explicitly
+// sets its own resume_after (a number), or explicitly opts out of
+// auto-resume with resume_after: null (a genuine "wait for the viewer"
+// moment). Without a default, a beat that simply forgets to set
+// resume_after pauses forever until a manual click, which reads as a
+// broken or stuck video rather than an intentional pause.
+const DEFAULT_RESUME_AFTER = 2.5;
+
+function resumeDelayFor(beat: Beat): number | null {
+  if (beat.resume_after === null) return null;
+  return beat.resume_after ?? DEFAULT_RESUME_AFTER;
+}
+
 function OverlaySvg({ beat }: { beat: Beat | null }) {
   if (!beat?.overlay) return null;
   return (
@@ -68,12 +81,13 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
         setActiveBeat(beat);
         if (beat.action === "pause") {
           pause();
-          if (beat.resume_after) {
+          const delay = resumeDelayFor(beat);
+          if (delay !== null) {
             window.clearTimeout(resumeTimerRef.current);
             resumeTimerRef.current = window.setTimeout(() => {
               setActiveBeat(null);
               play();
-            }, beat.resume_after * 1000);
+            }, delay * 1000);
           }
         }
         break;
@@ -104,7 +118,7 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
         {activeBeat && (
           <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 to-transparent p-4">
             <p className="font-display text-lg text-white">{activeBeat.caption}</p>
-            {activeBeat.action === "pause" && !activeBeat.resume_after && (
+            {activeBeat.action === "pause" && resumeDelayFor(activeBeat) === null && (
               <button
                 type="button"
                 onClick={continuePlaying}

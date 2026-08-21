@@ -9,6 +9,7 @@ type YTPlayer = {
   getDuration(): number;
   mute(): void;
   unMute(): void;
+  setPlaybackRate(rate: number): void;
   destroy(): void;
 };
 
@@ -125,5 +126,6 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
       playerRef.current?.mute();
       setMuted(true);
     },
+    setPlaybackRate: (rate: number) => playerRef.current?.setPlaybackRate(rate),
   };
 }

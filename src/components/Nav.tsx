@@ -23,6 +23,9 @@ export function Nav() {
             <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
           </svg>
         </a>
+        <Link to="/compare" className="text-xs text-text-dim hover:text-text">
+          Compare
+        </Link>
         <Link to="/pricing" className="text-xs text-text-dim hover:text-text">
           Pricing
         </Link>

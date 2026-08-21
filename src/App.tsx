@@ -11,6 +11,9 @@ import { Pricing } from "./pages/Pricing";
 // The authoring UI is only ever used by one person, code-splitting it out
 // keeps it from shipping in the bundle every regular visitor downloads.
 const Admin = lazy(() => import("./pages/admin/Admin").then((m) => ({ default: m.Admin })));
+// Compare is a power-user detour most visitors never open, split out for
+// the same reason.
+const Compare = lazy(() => import("./pages/Compare").then((m) => ({ default: m.Compare })));
 
 function AppRoutes() {
   const location = useLocation();
@@ -23,6 +26,14 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/concepts/:slug" element={<ConceptDetail />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route
+          path="/compare"
+          element={
+            <Suspense fallback={<div className="pb-skeleton m-6 h-40" />}>
+              <Compare />
+            </Suspense>
+          }
+        />
         <Route
           path="/admin"
           element={

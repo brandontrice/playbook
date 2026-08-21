@@ -14,6 +14,42 @@ import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 const DEFAULT_RESUME_AFTER = 3;
 // Chrome (scrubber/play button) auto-hides after this many idle ms while playing.
 const CHROME_IDLE_MS = 2500;
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5];
+const CAPTION_PREF_KEY = "pb-caption-prefs";
+
+type CaptionPrefs = { large: boolean; highContrast: boolean };
+
+function loadCaptionPrefs(): CaptionPrefs {
+  try {
+    const raw = localStorage.getItem(CAPTION_PREF_KEY);
+    if (!raw) return { large: false, highContrast: false };
+    return { large: false, highContrast: false, ...JSON.parse(raw) };
+  } catch {
+    return { large: false, highContrast: false };
+  }
+}
+
+function saveCaptionPrefs(prefs: CaptionPrefs) {
+  try {
+    localStorage.setItem(CAPTION_PREF_KEY, JSON.stringify(prefs));
+  } catch {
+    // best-effort, a private-browsing tab can throw here
+  }
+}
+
+// A form field on the page (search box, chat input, etc.) should keep its
+// own key handling, so shortcuts only fire when focus is elsewhere.
+function isTypingTarget(el: EventTarget | null) {
+  if (!(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+}
+
+// With a single player on the page (the common case), keyboard shortcuts
+// apply app-wide with no need to hover first. Compare mode puts two on the
+// same page, so once a second instance mounts each one requires hover,
+// otherwise space/arrows would control both players at once.
+let mountedPlayerCount = 0;
 
 function resumeDelayFor(beat: Beat): number | null {
   if (beat.resume_after === null) return null;
@@ -161,13 +197,25 @@ export function BreakdownPlayer({
     seekTo,
     mute,
     unmute,
+    setPlaybackRate,
   } = useYouTubePlayer(clip.youtube_id, clip.start_sec);
   const [activeBeat, setActiveBeat] = useState<Beat | null>(null);
   const [showChrome, setShowChrome] = useState(true);
+  const [rate, setRate] = useState(1);
+  const [captionPrefs, setCaptionPrefs] = useState<CaptionPrefs>(() => loadCaptionPrefs());
   const firedRef = useRef<Set<number>>(new Set());
   const resumeTimerRef = useRef<number | undefined>(undefined);
   const chromeTimerRef = useRef<number | undefined>(undefined);
   const completedRef = useRef(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const hoveredRef = useRef(false);
+
+  useEffect(() => {
+    mountedPlayerCount += 1;
+    return () => {
+      mountedPlayerCount -= 1;
+    };
+  }, []);
 
   // The soundtrack and the film's own audio are mutually exclusive: unmuting
   // the film stops the soundtrack, and if the soundtrack gets turned on from
@@ -224,6 +272,21 @@ export function BreakdownPlayer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing]);
 
+  function cycleRate() {
+    const idx = PLAYBACK_RATES.indexOf(rate);
+    const next = PLAYBACK_RATES[(idx + 1) % PLAYBACK_RATES.length];
+    setRate(next);
+    setPlaybackRate(next);
+  }
+
+  function toggleCaptionPref(key: keyof CaptionPrefs) {
+    setCaptionPrefs((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      saveCaptionPrefs(next);
+      return next;
+    });
+  }
+
   function jumpTo(beat: Beat, index: number) {
     window.clearTimeout(resumeTimerRef.current);
     firedRef.current = new Set(sorted.slice(0, index).map((_, i) => i));
@@ -266,14 +329,48 @@ export function BreakdownPlayer({
     }
   }
 
+  // App-wide shortcuts while this player's on screen: space to play/pause,
+  // left/right to seek, up/down to jump between beats. Only active when
+  // focus isn't in a form field elsewhere on the page (search box, chat).
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (isTypingTarget(e.target) || !ready) return;
+      if (mountedPlayerCount > 1 && !hoveredRef.current) return;
+      if (e.key === " ") {
+        e.preventDefault();
+        playing ? pause() : play();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        seekAndReconcile(Math.min(duration, currentTime + 5));
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        seekAndReconcile(Math.max(0, currentTime - 5));
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const next = sorted.find((b) => b.t > currentTime + 0.5);
+        if (next) jumpTo(next, sorted.indexOf(next));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const prevBeats = sorted.filter((b) => b.t < currentTime - 0.5);
+        const prev = prevBeats[prevBeats.length - 1];
+        if (prev) jumpTo(prev, sorted.indexOf(prev));
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, playing, currentTime, duration]);
+
   const isPortrait = clip.orientation === "portrait";
   const needsContinueClick = activeBeat?.action === "pause" && resumeDelayFor(activeBeat) === null;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div ref={rootRef} className="flex flex-col gap-3">
       <div
         onPointerMove={bumpChrome}
         onPointerDown={bumpChrome}
+        onPointerEnter={() => (hoveredRef.current = true)}
+        onPointerLeave={() => (hoveredRef.current = false)}
         className={`pb-grain relative w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black ${
           isPortrait ? "h-[70vh] max-h-[640px]" : "aspect-video"
         }`}
@@ -313,8 +410,18 @@ export function BreakdownPlayer({
               onPointerLeave={endHold}
               className="pb-lower-third absolute bottom-12 left-0 max-w-[85%] cursor-pointer select-none px-3 sm:bottom-14"
             >
-              <div className="border-l-4 border-accent bg-black/85 py-2.5 pl-3 pr-4 backdrop-blur-sm">
-                <p className="font-display text-lg leading-tight text-white">{activeBeat.caption}</p>
+              <div
+                className={`border-l-4 py-2.5 pl-3 pr-4 backdrop-blur-sm ${
+                  captionPrefs.highContrast ? "border-primary bg-black" : "border-accent bg-black/85"
+                }`}
+              >
+                <p
+                  className={`font-display leading-tight text-white ${
+                    captionPrefs.large ? "text-2xl" : "text-lg"
+                  }`}
+                >
+                  {activeBeat.caption}
+                </p>
                 {needsContinueClick && (
                   <button
                     type="button"
@@ -346,11 +453,65 @@ export function BreakdownPlayer({
             <span className="pb-numeral shrink-0 text-xs text-white">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
+            <button
+              type="button"
+              onClick={cycleRate}
+              aria-label="Playback speed"
+              title="Playback speed"
+              className="pb-numeral shrink-0 rounded border border-white/30 px-1.5 py-0.5 text-xs text-white"
+            >
+              {rate}x
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleCaptionPref("large")}
+              aria-pressed={captionPrefs.large}
+              aria-label="Toggle large captions"
+              title="Toggle large captions"
+              className={`shrink-0 rounded border px-1.5 py-0.5 text-xs ${
+                captionPrefs.large ? "border-primary text-primary" : "border-white/30 text-white"
+              }`}
+            >
+              Aa
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleCaptionPref("highContrast")}
+              aria-pressed={captionPrefs.highContrast}
+              aria-label="Toggle high-contrast captions"
+              title="Toggle high-contrast captions"
+              className={`shrink-0 rounded border px-1.5 py-0.5 text-xs ${
+                captionPrefs.highContrast ? "border-primary text-primary" : "border-white/30 text-white"
+              }`}
+            >
+              ◐
+            </button>
           </div>
         </div>
       </div>
 
-      <ol className="flex flex-col gap-2">
+      {/* mobile: swipeable card rail (native scroll-snap, no gesture library needed) */}
+      <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 sm:hidden">
+        {sorted.map((beat, i) => {
+          const isActive = beat === activeBeat;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => jumpTo(beat, i)}
+              className={`flex w-[78%] shrink-0 snap-start flex-col items-start gap-1 rounded-lg border px-3 py-2.5 text-left transition-colors duration-200 ${
+                isActive ? "border-primary bg-primary/10" : "border-surface-border bg-surface"
+              }`}
+            >
+              <span className="pb-numeral text-text-dim">{formatTime(beat.t)}</span>
+              <span className={isActive ? "text-text" : "text-text-dim"}>{beat.caption}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* desktop: vertical list */}
+      <ol className="hidden flex-col gap-2 sm:flex">
         {sorted.map((beat, i) => {
           const isActive = beat === activeBeat;
           return (

@@ -27,6 +27,7 @@ export type Clip = {
   season: string | null;
   quality: "canonical" | "counter" | "failed";
   status: "active" | "dead";
+  orientation: "landscape" | "portrait";
 };
 
 export type BeatOverlayArrow = { x1: number; y1: number; x2: number; y2: number };

@@ -48,6 +48,7 @@ create table if not exists clips (
   season text,
   quality text not null default 'canonical' check (quality in ('canonical', 'counter', 'failed')),
   status text not null default 'active' check (status in ('active', 'dead')),
+  orientation text not null default 'landscape' check (orientation in ('landscape', 'portrait')),
   created_at timestamptz not null default now()
 );
 

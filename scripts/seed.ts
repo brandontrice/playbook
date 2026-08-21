@@ -16,7 +16,15 @@ type SeedConcept = {
   body_md: string;
   difficulty: number;
   sort_order: number;
-  clip: { youtube_id: string; start_sec: number; title: string; teams: string[]; players: string[]; season: string };
+  clip: {
+    youtube_id: string;
+    start_sec: number;
+    title: string;
+    teams: string[];
+    players: string[];
+    season: string;
+    orientation: "landscape" | "portrait";
+  };
   beats: unknown[];
   diagram: unknown;
   quiz: { prompt: string; choices: string[]; answer_idx: number }[];
@@ -50,6 +58,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["GSW"],
       players: ["Stephen Curry"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Curry just passed, watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
@@ -96,6 +105,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["LAL"],
       players: ["Luka Doncic"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Live dribble, defender square, this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
@@ -141,6 +151,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["NYK"],
       players: ["Jalen Brunson"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Watch his hips, not the ball, that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
@@ -185,6 +196,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["SAS"],
       players: ["Victor Wembanyama"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "He starts on the weak side, this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
@@ -229,6 +241,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["LAL"],
       players: ["LeBron James"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Watch where his eyes are pointed versus where the ball actually goes.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
@@ -273,6 +286,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["MIN"],
       players: ["Anthony Edwards"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Defender's flying in hard, that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
@@ -315,6 +329,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["BOS"],
       players: ["Jayson Tatum"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Hard plant to the side, not backward, watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
@@ -357,6 +372,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["OKC"],
       players: ["Shai Gilgeous-Alexander"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Slow, controlled dribble, he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
@@ -399,6 +415,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["DAL"],
       players: ["Cooper Flagg"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Screen coming, watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
@@ -442,6 +459,7 @@ const CONCEPTS: SeedConcept[] = [
       teams: ["DEN"],
       players: ["Nikola Jokic"],
       season: "2025-26",
+      orientation: "portrait",
     },
     beats: [
       { t: 2, action: "note", caption: "Watch his eyes before the pass, he's already tracking where the cutter is about to be.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
@@ -540,6 +558,7 @@ async function main() {
         teams: c.clip.teams,
         players: c.clip.players,
         season: c.clip.season,
+        orientation: c.clip.orientation,
       })
       .select()
       .single();

@@ -128,6 +128,7 @@ export function AdminHome() {
       players,
       season: form.get("season") || null,
       quality: form.get("quality") || "canonical",
+      orientation: form.get("orientation") || "landscape",
     });
     flash(error ? error.message : "Clip created.");
     e.currentTarget.reset();
@@ -230,6 +231,10 @@ export function AdminHome() {
             <option value="canonical">canonical</option>
             <option value="counter">counter</option>
             <option value="failed">failed</option>
+          </select>
+          <select name="orientation" className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+            <option value="landscape">landscape (most YouTube videos)</option>
+            <option value="portrait">portrait (Shorts, phone-recorded clips)</option>
           </select>
           <SubmitButton label="Add clip" />
         </form>

@@ -8,14 +8,19 @@ export function ScoreTicker() {
   const prefersReducedMotion =
     typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const items = games.map((g) => (
-    <span key={g.id} className="text-xs text-text-dim">
-      <span className="font-display text-text">{g.away.abbreviation}</span> {g.away.score}
-      {" @ "}
-      <span className="font-display text-text">{g.home.abbreviation}</span> {g.home.score}
-      <span className="ml-2 text-text-dim/70">{g.statusText}</span>
-    </span>
-  ));
+  const items = games.map((g) => {
+    const isScheduled = g.state === "pre";
+    return (
+      <span key={g.id} className="text-xs text-text-dim">
+        <span className="font-display text-text">{g.away.abbreviation}</span>
+        {!isScheduled && <> {g.away.score}</>}
+        {" @ "}
+        <span className="font-display text-text">{g.home.abbreviation}</span>
+        {!isScheduled && <> {g.home.score}</>}
+        <span className="ml-2 text-text-dim/70">{g.statusText}</span>
+      </span>
+    );
+  });
 
   return (
     <div

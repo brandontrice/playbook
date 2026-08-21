@@ -112,40 +112,65 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
     play();
   }
 
+  const isPortrait = clip.orientation === "portrait";
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative aspect-video w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black">
-        <div ref={containerRef} className="h-full w-full" />
-        <OverlaySvg beat={activeBeat} />
-        {activeBeat && (
-          <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 to-transparent p-4">
-            <p className="font-display text-lg text-white">{activeBeat.caption}</p>
-            {activeBeat.action === "pause" && resumeDelayFor(activeBeat) === null && (
-              <button
-                type="button"
-                onClick={continuePlaying}
-                className="w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-black"
-              >
-                Continue ▶
-              </button>
-            )}
-          </div>
+      <div
+        className={`relative w-full overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-black ${
+          isPortrait ? "h-[70vh] max-h-[640px]" : "aspect-video"
+        }`}
+      >
+        {isPortrait && (
+          <img
+            src={`https://img.youtube.com/vi/${clip.youtube_id}/hqdefault.jpg`}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-2xl"
+          />
         )}
+        <div className={`relative h-full ${isPortrait ? "mx-auto aspect-[9/16]" : "w-full"}`}>
+          <div ref={containerRef} className="h-full w-full" />
+          <OverlaySvg beat={activeBeat} />
+          {activeBeat && (
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 to-transparent p-4">
+              <p className="font-display text-lg text-white">{activeBeat.caption}</p>
+              {activeBeat.action === "pause" && resumeDelayFor(activeBeat) === null && (
+                <button
+                  type="button"
+                  onClick={continuePlaying}
+                  className="w-fit rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-black"
+                >
+                  Continue ▶
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      <ol className="flex flex-wrap gap-2">
-        {sorted.map((beat, i) => (
-          <li key={i}>
-            <button
-              type="button"
-              onClick={() => jumpTo(beat, i)}
-              className="rounded-full border border-surface-border bg-surface px-3 py-1 text-xs text-text-dim hover:border-primary hover:text-text"
-            >
-              {Math.floor(beat.t / 60)}:{String(Math.floor(beat.t % 60)).padStart(2, "0")} · {beat.caption.slice(0, 28)}
-              {beat.caption.length > 28 ? "…" : ""}
-            </button>
-          </li>
-        ))}
+      <ol className="flex flex-col gap-2">
+        {sorted.map((beat, i) => {
+          const isActive = beat === activeBeat;
+          return (
+            <li key={i}>
+              <button
+                type="button"
+                onClick={() => jumpTo(beat, i)}
+                className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${
+                  isActive
+                    ? "border-primary bg-primary/10"
+                    : "border-surface-border bg-surface hover:border-primary/60"
+                }`}
+              >
+                <span className="mt-0.5 shrink-0 font-display tabular-nums text-text-dim">
+                  {Math.floor(beat.t / 60)}:{String(Math.floor(beat.t % 60)).padStart(2, "0")}
+                </span>
+                <span className={isActive ? "text-text" : "text-text-dim"}>{beat.caption}</span>
+              </button>
+            </li>
+          );
+        })}
       </ol>
 
       <div className="flex items-center gap-3 text-xs text-text-dim">

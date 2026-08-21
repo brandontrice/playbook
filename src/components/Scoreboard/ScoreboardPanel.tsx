@@ -34,21 +34,32 @@ export function ScoreboardPanel() {
         <p className="text-sm text-text-dim">No games on the board right now, check back closer to tip-off.</p>
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {games.map((g) => (
-            <div
-              key={g.id}
-              className="flex items-center justify-between rounded-lg border border-surface-border bg-surface px-3 py-2"
-            >
-              <div className="flex items-baseline gap-2 font-display">
-                <span className="text-text-dim">{g.away.abbreviation}</span>
-                <span className="tabular-nums text-lg text-primary">{g.away.score}</span>
-                <span className="text-text-dim">-</span>
-                <span className="tabular-nums text-lg text-primary">{g.home.score}</span>
-                <span className="text-text-dim">{g.home.abbreviation}</span>
+          {games.map((g) => {
+            const isScheduled = g.state === "pre";
+            return (
+              <div
+                key={g.id}
+                className="flex items-center justify-between rounded-lg border border-surface-border bg-surface px-3 py-2"
+              >
+                {isScheduled ? (
+                  <div className="flex items-baseline gap-2 font-display">
+                    <span className="text-text">{g.away.abbreviation}</span>
+                    <span className="text-text-dim">at</span>
+                    <span className="text-text">{g.home.abbreviation}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline gap-2 font-display">
+                    <span className="text-text-dim">{g.away.abbreviation}</span>
+                    <span className="tabular-nums text-lg text-primary">{g.away.score}</span>
+                    <span className="text-text-dim">-</span>
+                    <span className="tabular-nums text-lg text-primary">{g.home.score}</span>
+                    <span className="text-text-dim">{g.home.abbreviation}</span>
+                  </div>
+                )}
+                <span className="text-xs text-text-dim">{g.statusText}</span>
               </div>
-              <span className="text-xs text-text-dim">{g.statusText}</span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

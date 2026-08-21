@@ -6,8 +6,12 @@ import { BreakdownPlayer } from "../components/BreakdownPlayer/BreakdownPlayer";
 import { Chalkboard } from "../components/Chalkboard/Chalkboard";
 import { Quiz } from "../components/Quiz/Quiz";
 import { ChatPanel } from "../components/Chat/ChatPanel";
+import { useSession } from "../lib/auth";
+import { markConceptComplete } from "../lib/progress";
+import { useBookmarks, toggleBookmark } from "../lib/bookmarks";
 
 type Tab = "film" | "chalkboard" | "quiz" | "chat";
+type UpNextConcept = { concept: Concept; youtube_id?: string };
 
 const TAB_META: Record<Tab, { label: string; icon: string }> = {
   film: { label: "Film", icon: "🎬" },
@@ -37,6 +41,8 @@ function splitExplainer(body: string) {
 
 export function ConceptDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const { session } = useSession();
+  const { bookmarkedIds, refresh: refreshBookmarks } = useBookmarks(session?.user.id);
   const [concept, setConcept] = useState<Concept | null>(null);
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [clipsById, setClipsById] = useState<Record<string, Clip>>({});
@@ -45,6 +51,7 @@ export function ConceptDetail() {
   const [tab, setTab] = useState<Tab>("film");
   const [activeClipIndex, setActiveClipIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [upNext, setUpNext] = useState<UpNextConcept[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -76,6 +83,39 @@ export function ConceptDetail() {
         setClipsById(map);
       }
       setLoading(false);
+
+      // "Up next" is derived from sort_order within the same sport rather
+      // than a curated relation, no authoring step needed for it to work
+      // across the existing library.
+      const { data: sportConcepts } = await supabase
+        .from("concepts")
+        .select("*")
+        .eq("sport_id", conceptData.sport_id)
+        .is("parent_id", null)
+        .order("sort_order");
+      const siblings = (sportConcepts ?? []).filter((c) => c.id !== conceptData.id);
+      if (siblings.length > 0) {
+        const currentIdx = (sportConcepts ?? []).findIndex((c) => c.id === conceptData.id);
+        const ordered: Concept[] = [];
+        for (let i = 1; i <= siblings.length && ordered.length < 3; i++) {
+          const idx = (currentIdx + i) % (sportConcepts ?? []).length;
+          const candidate = (sportConcepts ?? [])[idx];
+          if (candidate.id !== conceptData.id) ordered.push(candidate);
+        }
+        const ids = ordered.map((c) => c.id);
+        const { data: links } = await supabase
+          .from("clip_concepts")
+          .select("concept_id, clips(youtube_id)")
+          .in("concept_id", ids);
+        const thumbById: Record<string, string> = {};
+        for (const row of links ?? []) {
+          const clip = row.clips as unknown as { youtube_id: string } | null;
+          if (clip && !thumbById[row.concept_id]) thumbById[row.concept_id] = clip.youtube_id;
+        }
+        setUpNext(ordered.map((c) => ({ concept: c, youtube_id: thumbById[c.id] })));
+      } else {
+        setUpNext([]);
+      }
     })();
   }, [slug]);
 
@@ -115,6 +155,18 @@ export function ConceptDetail() {
   });
 
   const explainer = concept.body_md ? splitExplainer(concept.body_md) : null;
+  const isBookmarked = bookmarkedIds.has(concept.id);
+
+  async function handleBookmarkToggle() {
+    if (!session || !concept) return;
+    await toggleBookmark(session.user.id, concept.id, isBookmarked);
+    refreshBookmarks();
+  }
+
+  async function handleComplete() {
+    if (!session || !concept) return;
+    await markConceptComplete(session.user.id, concept.id);
+  }
 
   return (
     <div>
@@ -128,9 +180,24 @@ export function ConceptDetail() {
           />
         )}
         <div className="relative mx-auto max-w-3xl px-6 py-10">
-          <Link to="/" className="text-xs text-text-dim hover:text-text">
-            ← back
-          </Link>
+          <div className="flex items-start justify-between gap-3">
+            <Link to="/" className="text-xs text-text-dim hover:text-text">
+              ← back
+            </Link>
+            {session && (
+              <button
+                type="button"
+                onClick={handleBookmarkToggle}
+                aria-pressed={isBookmarked}
+                aria-label={isBookmarked ? "Remove bookmark" : "Bookmark this concept"}
+                className={`rounded-full border px-3 py-1 text-xs transition-colors duration-200 ${
+                  isBookmarked ? "border-primary bg-primary/20 text-text" : "border-surface-border text-text-dim hover:text-text"
+                }`}
+              >
+                {isBookmarked ? "★ Bookmarked" : "☆ Bookmark"}
+              </button>
+            )}
+          </div>
           <h1 className="mt-2 font-display text-4xl uppercase tracking-wide">{concept.title}</h1>
           {concept.summary && <p className="mt-1 text-text-dim">{concept.summary}</p>}
         </div>
@@ -177,7 +244,7 @@ export function ConceptDetail() {
                   })}
                 </div>
               )}
-              <BreakdownPlayer clip={activeClip} beats={activeBreakdown.beats} />
+              <BreakdownPlayer clip={activeClip} beats={activeBreakdown.beats} onComplete={handleComplete} />
             </div>
           )}
 
@@ -206,6 +273,34 @@ export function ConceptDetail() {
             </div>
           )}
         </div>
+
+        {upNext.length > 0 && (
+          <div className="mt-12 border-t border-surface-border pt-6">
+            <p className="mb-3 text-xs uppercase tracking-widest text-text-dim">Up next</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {upNext.map(({ concept: c, youtube_id }) => (
+                <Link
+                  key={c.id}
+                  to={`/concepts/${c.slug}`}
+                  className="group relative block aspect-video overflow-hidden rounded-[var(--radius-pb)] border border-surface-border bg-bg-2"
+                >
+                  {youtube_id && (
+                    <img
+                      src={`https://img.youtube.com/vi/${youtube_id}/hqdefault.jpg`}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-70 transition-opacity duration-200 group-hover:opacity-90"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
+                  <p className="absolute inset-x-0 bottom-0 p-2.5 font-display text-sm uppercase leading-tight tracking-wide text-white">
+                    {c.title}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

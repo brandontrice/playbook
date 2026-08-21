@@ -107,6 +107,17 @@ create table if not exists user_progress (
   status text not null default 'seen' check (status in ('seen', 'learning', 'known')),
   next_review timestamptz,
   streak int not null default 0,
+  -- set the first time status becomes 'known', a daily engagement streak
+  -- is derived client-side from distinct completion dates rather than
+  -- maintaining a separate counter that could drift out of sync
+  completed_at timestamptz,
+  primary key (user_id, concept_id)
+);
+
+create table if not exists bookmarks (
+  user_id uuid not null,
+  concept_id uuid not null references concepts(id) on delete cascade,
+  created_at timestamptz not null default now(),
   primary key (user_id, concept_id)
 );
 
@@ -155,4 +166,10 @@ end $$;
 
 drop policy if exists user_progress_owner on user_progress;
 create policy user_progress_owner on user_progress
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+alter table bookmarks enable row level security;
+
+drop policy if exists bookmarks_owner on bookmarks;
+create policy bookmarks_owner on bookmarks
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

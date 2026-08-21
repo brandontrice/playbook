@@ -139,7 +139,15 @@ function Scrubber({
   );
 }
 
-export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) {
+export function BreakdownPlayer({
+  clip,
+  beats,
+  onComplete,
+}: {
+  clip: Clip;
+  beats: Beat[];
+  onComplete?: () => void;
+}) {
   const sorted = [...beats].sort((a, b) => a.t - b.t);
   const {
     containerRef,
@@ -159,6 +167,7 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
   const firedRef = useRef<Set<number>>(new Set());
   const resumeTimerRef = useRef<number | undefined>(undefined);
   const chromeTimerRef = useRef<number | undefined>(undefined);
+  const completedRef = useRef(false);
 
   // The soundtrack and the film's own audio are mutually exclusive: unmuting
   // the film stops the soundtrack, and if the soundtrack gets turned on from
@@ -180,6 +189,10 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
       if (currentTime >= beat.t && currentTime < beat.t + 1) {
         firedRef.current.add(i);
         setActiveBeat(beat);
+        if (!completedRef.current && firedRef.current.size === sorted.length) {
+          completedRef.current = true;
+          onComplete?.();
+        }
         const isPause = beat.action === "pause";
         if (isPause) pause();
 

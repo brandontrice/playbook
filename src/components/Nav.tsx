@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { SoundtrackToggle } from "./SoundtrackToggle";
 import { Wordmark } from "./Wordmark";
+import { AccountMenu } from "./AccountMenu";
 
 export function Nav() {
   return (
@@ -29,6 +30,7 @@ export function Nav() {
           Admin
         </Link>
         <SoundtrackToggle />
+        <AccountMenu />
       </div>
     </header>
   );

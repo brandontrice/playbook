@@ -18,10 +18,14 @@ export function useSession() {
   return { session, loading, isAdmin: session?.user.email === ADMIN_EMAIL };
 }
 
-export async function sendMagicLink(email: string) {
+export async function sendMagicLink(email: string, redirectPath = "/") {
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${window.location.origin}/admin` },
+    options: { emailRedirectTo: `${window.location.origin}${redirectPath}` },
   });
   if (error) throw error;
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
 }

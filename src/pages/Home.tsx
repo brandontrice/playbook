@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import type { Beat, Clip, Concept, Sport } from "../types";
 import { ScoreboardPanel } from "../components/Scoreboard/ScoreboardPanel";
 import { BreakdownPlayer } from "../components/BreakdownPlayer/BreakdownPlayer";
 import { teamColor } from "../lib/teamColors";
+import { useSession } from "../lib/auth";
+import { useUserProgress } from "../lib/progress";
+import { useBookmarks } from "../lib/bookmarks";
 
 type CardClip = { youtube_id: string; players: string[]; teams: string[] };
 type FeaturedConcept = { concept: Concept; clip: Clip; beats: Beat[] };
@@ -26,7 +29,19 @@ function DifficultyPips({ level }: { level: number }) {
   );
 }
 
-function PosterCard({ concept, clip, sportSlug }: { concept: Concept; clip?: CardClip; sportSlug: string }) {
+function PosterCard({
+  concept,
+  clip,
+  sportSlug,
+  completed,
+  bookmarked,
+}: {
+  concept: Concept;
+  clip?: CardClip;
+  sportSlug: string;
+  completed: boolean;
+  bookmarked: boolean;
+}) {
   const player = clip?.players?.[0];
   const team = clip?.teams?.[0];
   const tint = teamColor(team, sportSlug);
@@ -45,6 +60,20 @@ function PosterCard({ concept, clip, sportSlug }: { concept: Concept; clip?: Car
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/10" />
+      {(completed || bookmarked) && (
+        <div className="absolute right-2 top-2 flex gap-1">
+          {bookmarked && (
+            <span className="rounded-full bg-black/60 px-1.5 py-0.5 text-xs" aria-label="Bookmarked" title="Bookmarked">
+              ★
+            </span>
+          )}
+          {completed && (
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-xs text-black" aria-label="Completed" title="Completed">
+              ✓
+            </span>
+          )}
+        </div>
+      )}
       <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-3">
         {(player || team) && (
           <span
@@ -64,12 +93,19 @@ function PosterCard({ concept, clip, sportSlug }: { concept: Concept; clip?: Car
 }
 
 export function Home() {
+  const navigate = useNavigate();
+  const { session } = useSession();
+  const { completedIds } = useUserProgress(session?.user.id);
+  const { bookmarkedIds } = useBookmarks(session?.user.id);
   const [sports, setSports] = useState<Sport[]>([]);
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [clipsByConcept, setClipsByConcept] = useState<Record<string, CardClip>>({});
   const [featured, setFeatured] = useState<FeaturedConcept | null>(null);
   const [loading, setLoading] = useState(true);
   const [teamFilter, setTeamFilter] = useState<string | null>(null);
+  const [difficultyFilter, setDifficultyFilter] = useState<number | null>(null);
+  const [bookmarkedOnly, setBookmarkedOnly] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -108,6 +144,23 @@ export function Home() {
     })();
   }, []);
 
+  const searchLower = search.trim().toLowerCase();
+
+  function matchesFilters(c: Concept) {
+    const clip = clipsByConcept[c.id];
+    if (teamFilter && !clip?.teams.includes(teamFilter)) return false;
+    if (difficultyFilter && c.difficulty !== difficultyFilter) return false;
+    if (bookmarkedOnly && !bookmarkedIds.has(c.id)) return false;
+    if (searchLower) {
+      const haystack = [c.title, c.summary, ...(clip?.players ?? []), ...(clip?.teams ?? [])]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(searchLower)) return false;
+    }
+    return true;
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="pb-grain mb-10 grid grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-10">
@@ -139,6 +192,51 @@ export function Home() {
       </div>
 
       <div id="library" />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by player, team, or concept..."
+          className="min-w-[220px] flex-1 rounded-full border border-surface-border bg-bg-2 px-4 py-2 text-sm outline-none focus:border-primary"
+        />
+        <select
+          value={difficultyFilter ?? ""}
+          onChange={(e) => setDifficultyFilter(e.target.value ? Number(e.target.value) : null)}
+          className="rounded-full border border-surface-border bg-bg-2 px-3 py-2 text-xs text-text-dim outline-none focus:border-primary"
+        >
+          <option value="">Any difficulty</option>
+          {[1, 2, 3, 4, 5].map((d) => (
+            <option key={d} value={d}>
+              Difficulty {d}
+            </option>
+          ))}
+        </select>
+        {session && (
+          <button
+            type="button"
+            onClick={() => setBookmarkedOnly((b) => !b)}
+            className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase ${
+              bookmarkedOnly ? "border-primary bg-primary text-black" : "border-surface-border text-text-dim"
+            }`}
+          >
+            ★ Bookmarked
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            const pool = concepts.filter((c) => !c.parent_id);
+            if (pool.length === 0) return;
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            navigate(`/concepts/${pick.slug}`);
+          }}
+          className="rounded-full border border-surface-border px-3 py-2 text-xs font-semibold uppercase text-text-dim hover:border-primary hover:text-text"
+        >
+          🎲 Surprise me
+        </button>
+      </div>
 
       {!loading && (() => {
         // Team abbreviations can collide across sports (CLE, DEN, MIN are
@@ -198,19 +296,21 @@ export function Home() {
 
       {!loading &&
         sports.map((sport) => {
-          const sportConcepts = concepts.filter(
-            (c) =>
-              c.sport_id === sport.id &&
-              !c.parent_id &&
-              (!teamFilter || clipsByConcept[c.id]?.teams.includes(teamFilter)),
-          );
+          const sportConcepts = concepts.filter((c) => c.sport_id === sport.id && !c.parent_id && matchesFilters(c));
           if (sportConcepts.length === 0) return null;
           return (
             <section key={sport.id} className="mb-10">
               <h2 className="mb-3 text-sm uppercase tracking-widest text-text-dim">{sport.name}</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sportConcepts.map((c) => (
-                  <PosterCard key={c.id} concept={c} clip={clipsByConcept[c.id]} sportSlug={sport.slug} />
+                  <PosterCard
+                    key={c.id}
+                    concept={c}
+                    clip={clipsByConcept[c.id]}
+                    sportSlug={sport.slug}
+                    completed={completedIds.has(c.id)}
+                    bookmarked={bookmarkedIds.has(c.id)}
+                  />
                 ))}
               </div>
             </section>
@@ -232,19 +332,22 @@ export function Home() {
 
       {!loading &&
         concepts.length > 0 &&
-        teamFilter &&
-        sports.every(
-          (sport) =>
-            concepts.filter(
-              (c) => c.sport_id === sport.id && !c.parent_id && clipsByConcept[c.id]?.teams.includes(teamFilter),
-            ).length === 0,
-        ) && (
+        sports.every((sport) => concepts.filter((c) => c.sport_id === sport.id && !c.parent_id && matchesFilters(c)).length === 0) && (
           <div className="rounded-[var(--radius-pb)] border border-dashed border-surface-border p-8 text-center text-text-dim">
-            <p className="font-display text-xl text-text">No {teamFilter} breakdowns yet.</p>
+            <p className="font-display text-xl text-text">Nothing matches that.</p>
             <p className="mt-1 text-sm">
               Here's the closest thing:{" "}
-              <button type="button" onClick={() => setTeamFilter(null)} className="text-primary underline">
-                see every concept
+              <button
+                type="button"
+                onClick={() => {
+                  setTeamFilter(null);
+                  setDifficultyFilter(null);
+                  setBookmarkedOnly(false);
+                  setSearch("");
+                }}
+                className="text-primary underline"
+              >
+                clear filters
               </button>
               .
             </p>

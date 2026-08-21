@@ -11,7 +11,7 @@ export function AdminLogin() {
     e.preventDefault();
     setError(null);
     try {
-      await sendMagicLink(email);
+      await sendMagicLink(email, "/admin");
       setSent(true);
     } catch {
       setError("Couldn't send the link, check the email and try again.");

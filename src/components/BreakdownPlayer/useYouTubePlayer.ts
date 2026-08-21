@@ -80,8 +80,12 @@ export function useYouTubePlayer(videoId: string, startSec: number) {
       });
       playerRef.current = player;
 
+      // getCurrentTime and friends aren't callable until the underlying
+      // iframe finishes loading, which lands slightly after the Player
+      // object itself exists, so gate the polling loop on onReady rather
+      // than starting it right after construction.
       const tick = () => {
-        if (playerRef.current) {
+        if (playerRef.current && typeof playerRef.current.getCurrentTime === "function") {
           setCurrentTime(playerRef.current.getCurrentTime());
         }
         raf = requestAnimationFrame(tick);

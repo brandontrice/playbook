@@ -1,6 +1,6 @@
 # Playbook
 
-Sports concept-learning app, music-theory explainers, but for sports, and film-first. Curated YouTube clips (embedded via the official player, never hosted footage) carry a synced "breakdown" annotation layer (pause/caption/arrow overlay at timestamps); a static X's-and-O's "chalkboard" diagram is the secondary abstraction tab; a small quiz mode and an AI chat explainer round out the concept page. See `README.md` for the current architecture and `supabase/schema.sql` for the data model.
+Sports concept-learning app, music-theory explainers, but for sports, and film-first. Curated YouTube clips (embedded via the official player, never hosted footage) carry a synced "breakdown" annotation layer (caption/arrow overlay at timestamps while playback keeps rolling; a beat can opt into pausing instead if it needs to); a static X's-and-O's "chalkboard" diagram is the secondary abstraction tab; a small quiz mode and an AI chat explainer round out the concept page. See `README.md` for the current architecture and `supabase/schema.sql` for the data model.
 
 ## Visual style
 

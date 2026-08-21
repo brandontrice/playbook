@@ -3,12 +3,14 @@ import type { Beat, Clip } from "../../types";
 import { useYouTubePlayer } from "./useYouTubePlayer";
 import { onSoundtrackChange, stopSoundtrack } from "../../lib/soundtrack";
 
-// A pause beat auto-resumes after this many seconds unless it explicitly
-// sets its own resume_after (a number), or explicitly opts out of
-// auto-resume with resume_after: null (a genuine "wait for the viewer"
-// moment). Without a default, a beat that simply forgets to set
-// resume_after pauses forever until a manual click, which reads as a
-// broken or stuck video rather than an intentional pause.
+// How long a beat's caption/overlay stays on screen before clearing itself,
+// unless it explicitly sets its own resume_after (a number), or explicitly
+// opts out of auto-clearing with resume_after: null (a genuine "wait for
+// the viewer" moment, only meaningful for a "pause" beat's manual Continue
+// button). Without a default, a beat that forgets to set resume_after
+// would sit there forever, either stuck on pause or with a caption that
+// never goes away, reading as a broken video rather than an intentional
+// annotation.
 const DEFAULT_RESUME_AFTER = 2.5;
 
 function resumeDelayFor(beat: Beat): number | null {
@@ -79,16 +81,16 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
       if (currentTime >= beat.t && currentTime < beat.t + 1) {
         firedRef.current.add(i);
         setActiveBeat(beat);
-        if (beat.action === "pause") {
-          pause();
-          const delay = resumeDelayFor(beat);
-          if (delay !== null) {
-            window.clearTimeout(resumeTimerRef.current);
-            resumeTimerRef.current = window.setTimeout(() => {
-              setActiveBeat(null);
-              play();
-            }, delay * 1000);
-          }
+        const isPause = beat.action === "pause";
+        if (isPause) pause();
+
+        const delay = resumeDelayFor(beat);
+        if (delay !== null) {
+          window.clearTimeout(resumeTimerRef.current);
+          resumeTimerRef.current = window.setTimeout(() => {
+            setActiveBeat(null);
+            if (isPause) play();
+          }, delay * 1000);
         }
         break;
       }

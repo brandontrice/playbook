@@ -2,15 +2,16 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Concept, Sport } from "../../types";
 
-// A "pause" beat auto-resumes after ~2.5s by default (no need to set
-// resume_after for that). Set resume_after to a number for a custom delay,
-// or to null if you genuinely want it to wait for a manual "Continue"
-// click (e.g. a quiz-style "guess what happens next" moment).
+// "note" shows the caption/overlay for ~2.5s (by default) while the video
+// keeps playing, the normal choice for a short clip. "pause" actually
+// stops playback for that same duration before auto-resuming; set
+// resume_after to a custom number of seconds, or to null on a "pause" beat
+// if you genuinely want it to wait for a manual "Continue" click (e.g. a
+// quiz-style "guess what happens next" moment).
 const BEATS_TEMPLATE = `[
-  { "t": 4.5, "action": "pause", "caption": "Watch the screener's angle here.",
+  { "t": 4.5, "action": "note", "caption": "Watch the screener's angle here.",
     "overlay": { "arrows": [{ "x1": 30, "y1": 60, "x2": 45, "y2": 40 }] } },
-  { "t": 9, "action": "pause", "caption": "That's the slip, weak-side help never rotates in time.",
-    "resume_after": 3 }
+  { "t": 9, "action": "note", "caption": "That's the slip, weak-side help never rotates in time." }
 ]`;
 
 const DIAGRAM_TEMPLATE = `{

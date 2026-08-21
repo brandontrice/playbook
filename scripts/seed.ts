@@ -52,8 +52,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Curry just passed, watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
-      { t: 6, action: "pause", caption: "He's relocated to a new catch spot before the defense could recover.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Curry just passed, watch what he does next instead of standing still.", overlay: { arrows: [{ x1: 40, y1: 60, x2: 65, y2: 25 }] } },
+      { t: 6, action: "note", caption: "He's relocated to a new catch spot before the defense could recover.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -97,8 +97,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Live dribble, defender square, this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 5, action: "pause", caption: "The push-back happens as the gather starts, separation before the rise, not during it.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Live dribble, defender square, this is the setup, not the shot yet.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 45, y2: 35 }] } },
+      { t: 5, action: "note", caption: "The push-back happens as the gather starts, separation before the rise, not during it.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -141,8 +141,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Watch his hips, not the ball, that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 5, action: "pause", caption: "One beat of hesitation bought him the space to finish.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Watch his hips, not the ball, that hesitation is what freezes the defender.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
+      { t: 5, action: "note", caption: "One beat of hesitation bought him the space to finish.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -184,8 +184,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "He starts on the weak side, this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
-      { t: 5, action: "pause", caption: "Straight up, not across the body, that's verticality, not a foul.", resume_after: 2 },
+      { t: 2, action: "note", caption: "He starts on the weak side, this isn't his man driving.", overlay: { arrows: [{ x1: 70, y1: 20, x2: 50, y2: 45 }] } },
+      { t: 5, action: "note", caption: "Straight up, not across the body, that's verticality, not a foul.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -227,8 +227,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Watch where his eyes are pointed versus where the ball actually goes.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
-      { t: 5, action: "pause", caption: "The pass is already gone before the defense fully reacted, that's the read made early.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Watch where his eyes are pointed versus where the ball actually goes.", overlay: { arrows: [{ x1: 45, y1: 55, x2: 50, y2: 30 }] } },
+      { t: 5, action: "note", caption: "The pass is already gone before the defense fully reacted, that's the read made early.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -270,8 +270,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Defender's flying in hard, that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
-      { t: 4, action: "pause", caption: "One dribble and he's already by, the closeout's own momentum beat itself.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Defender's flying in hard, that's a driving lane opening up, not a good contest.", overlay: { arrows: [{ x1: 60, y1: 30, x2: 40, y2: 45 }] } },
+      { t: 4, action: "note", caption: "One dribble and he's already by, the closeout's own momentum beat itself.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -311,8 +311,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Hard plant to the side, not backward, watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
-      { t: 5, action: "pause", caption: "Defender's weight is still going the other way when the shot goes up.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Hard plant to the side, not backward, watch where his weight shifts.", overlay: { arrows: [{ x1: 45, y1: 50, x2: 60, y2: 50 }] } },
+      { t: 5, action: "note", caption: "Defender's weight is still going the other way when the shot goes up.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -352,8 +352,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Slow, controlled dribble, he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
-      { t: 4, action: "pause", caption: "Sudden burst into the body, that contact reads as a foul.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Slow, controlled dribble, he's letting the defender get comfortable.", overlay: { circles: [{ x: 45, y: 45, r: 4 }] } },
+      { t: 4, action: "note", caption: "Sudden burst into the body, that contact reads as a foul.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -393,8 +393,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Screen coming, watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
-      { t: 5, action: "pause", caption: "No gap, no mismatch, he just picked up the new assignment clean.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Screen coming, watch him switch instead of fighting through it.", overlay: { arrows: [{ x1: 45, y1: 40, x2: 60, y2: 45 }] } },
+      { t: 5, action: "note", caption: "No gap, no mismatch, he just picked up the new assignment clean.", resume_after: 2 },
     ],
     diagram: {
       players: [
@@ -435,8 +435,8 @@ const CONCEPTS: SeedConcept[] = [
       season: "2025-26",
     },
     beats: [
-      { t: 2, action: "pause", caption: "Watch his eyes before the pass, he's already tracking where the cutter is about to be.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
-      { t: 5, action: "pause", caption: "The pass goes to a spot the defense hasn't reacted to yet, not to where the cutter already is.", resume_after: 2 },
+      { t: 2, action: "note", caption: "Watch his eyes before the pass, he's already tracking where the cutter is about to be.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 45, y2: 35 }] } },
+      { t: 5, action: "note", caption: "The pass goes to a spot the defense hasn't reacted to yet, not to where the cutter already is.", resume_after: 2 },
     ],
     diagram: {
       players: [

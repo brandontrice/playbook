@@ -5,6 +5,7 @@ import { ScoreTicker } from "./components/Scoreboard/ScoreTicker";
 import { Home } from "./pages/Home";
 import { ConceptDetail } from "./pages/ConceptDetail";
 import { Admin } from "./pages/admin/Admin";
+import { Pricing } from "./pages/Pricing";
 
 function AppRoutes() {
   const location = useLocation();
@@ -16,6 +17,7 @@ function AppRoutes() {
       <Routes location={location}>
         <Route path="/" element={<Home />} />
         <Route path="/concepts/:slug" element={<ConceptDetail />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </div>

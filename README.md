@@ -1,6 +1,6 @@
 # Playbook
 
-Sports concepts, taught through real film. Curated YouTube clips get a synced "breakdown" layer (pause, caption, arrow overlay at specific timestamps), plus a static X's-and-O's chalkboard tab, a quiz mode, and an AI chat explainer grounded in the concept library. See [CLAUDE.md](./CLAUDE.md) for style/conventions and the project plan for full scope.
+Sports concepts, taught through real film. Curated YouTube clips get a synced "breakdown" layer (caption/arrow overlay at specific timestamps while the video keeps playing, a beat can optionally pause instead), plus a chalk-textured X's-and-O's chalkboard tab, a quiz mode, and an AI chat explainer grounded in the concept library. Custom cinematic player (own scrubber, broadcast lower-third captions, arrows that draw themselves). See [CLAUDE.md](./CLAUDE.md) for style/conventions and the project plan for full scope.
 
 Two themes: **MyPark** (modern, default) and **Showtime** (90s vibe). Toggle in the top-right nav.
 
@@ -9,6 +9,8 @@ Two themes: **MyPark** (modern, default) and **Showtime** (90s vibe). Toggle in 
 - Vite + React + TypeScript + Tailwind v4, talking to Supabase directly via `supabase-js` (no custom backend for reads/writes)
 - Supabase (Postgres + pgvector + Auth), free tier, cloud-hosted so it works from any network today
 - One Vercel serverless function (`api/chat.ts`) proxies Groq for the AI chat feature. It's the only place a server-side secret is used at request time
+- `api/og.tsx` (Edge runtime, `@vercel/og`) generates a per-concept share-card image (film still + title + beat count) on request
+- `middleware.ts` (Vercel Routing Middleware, project root) injects real per-concept `<meta>`/OG tags for `/concepts/:slug` so link previews (Slack, iMessage, Twitter/X, etc.) show the actual concept instead of one generic card for the whole SPA. Needs a live post-deploy check with an actual link-preview tool, this can't be verified locally
 - Deployed on Vercel, connected to this GitHub repo for auto-deploy on push to `main`
 
 ## First-time setup

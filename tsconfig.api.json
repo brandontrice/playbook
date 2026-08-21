@@ -12,11 +12,12 @@
     "moduleDetection": "force",
     "noEmit": true,
     "esModuleInterop": true,
+    "jsx": "react-jsx",
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["api"]
+  "include": ["api", "middleware.ts"]
 }

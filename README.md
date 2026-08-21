@@ -2,15 +2,17 @@
 
 Sports concepts, taught through real film. Curated YouTube clips get a synced "breakdown" layer (caption/arrow overlay at specific timestamps while the video keeps playing, a beat can optionally pause instead), plus a chalk-textured X's-and-O's chalkboard tab, a quiz mode, and an AI chat explainer grounded in the concept library. Custom cinematic player (own scrubber, broadcast lower-third captions, arrows that draw themselves). See [CLAUDE.md](./CLAUDE.md) for style/conventions and the project plan for full scope.
 
-Two themes: **MyPark** (modern, default) and **Showtime** (90s vibe). Toggle in the top-right nav.
+Committed to one theme, **MyPark**. Showtime's tokens are still fully defined in `src/index.css` and `ThemeToggle.tsx` still exists, just not rendered in the nav, see `CLAUDE.md`.
 
 ## Stack
 
 - Vite + React + TypeScript + Tailwind v4, talking to Supabase directly via `supabase-js` (no custom backend for reads/writes)
 - Supabase (Postgres + pgvector + Auth), free tier, cloud-hosted so it works from any network today
-- One Vercel serverless function (`api/chat.ts`) proxies Groq for the AI chat feature. It's the only place a server-side secret is used at request time
+- One Vercel serverless function (`api/chat.ts`) proxies Groq for the AI chat feature, rate-limited per IP (`chat_rate_limit` table). It's the only place the Groq key is used
 - `api/og.tsx` (Edge runtime, `@vercel/og`) generates a per-concept share-card image (film still + title + beat count) on request
-- `middleware.ts` (Vercel Routing Middleware, project root) injects real per-concept `<meta>`/OG tags for `/concepts/:slug` so link previews (Slack, iMessage, Twitter/X, etc.) show the actual concept instead of one generic card for the whole SPA. Needs a live post-deploy check with an actual link-preview tool, this can't be verified locally
+- `middleware.ts` (Vercel Routing Middleware, project root) injects real per-concept `<meta>`/OG tags and schema.org VideoObject JSON-LD for `/concepts/:slug`, and generates `/sitemap.xml` from the live concept list. Needs a live post-deploy check with an actual link-preview tool for the OG piece, that can't be verified locally
+- Error monitoring (`src/lib/sentry.ts`) and Vercel Analytics wired in, Sentry no-ops until `VITE_SENTRY_DSN` is set (see `.env.example`)
+- CI: `.github/workflows/ci.yml` runs typecheck + build on every push/PR to `main`
 - Deployed on Vercel, connected to this GitHub repo for auto-deploy on push to `main`
 
 ## First-time setup

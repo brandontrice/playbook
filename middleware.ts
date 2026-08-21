@@ -1,14 +1,16 @@
-// Vercel Edge Middleware. This is a client-rendered SPA with one static
-// index.html, so a link shared from /concepts/some-slug would otherwise
-// show a generic "Playbook" preview for every concept. This intercepts
-// just the concept routes, fetches that concept's title/summary/clip from
-// Supabase (the public anon key, same one the browser already uses), and
-// injects real per-concept <meta> tags (including an og:image pointing at
-// api/og.tsx's generated card) into the HTML before it reaches the
-// requester, so link previews in Slack/Discord/iMessage/Twitter etc. show
-// the actual concept instead of a generic card.
+// Vercel Edge Middleware, handles two SEO/share concerns for this
+// client-rendered SPA (one static index.html, so neither of these can be
+// done as a plain static file or component):
+//
+// 1. /concepts/:slug gets real per-concept <meta>/OG tags plus a
+//    schema.org VideoObject JSON-LD block injected into the HTML before it
+//    reaches the requester, so link previews (Slack/Discord/iMessage/
+//    Twitter) and search engines see the actual concept instead of one
+//    generic card/description for the whole site.
+// 2. /sitemap.xml is generated on request from the live concept list,
+//    instead of a static file that would silently drift out of date.
 export const config = {
-  matcher: "/concepts/:slug*",
+  matcher: ["/concepts/:slug*", "/sitemap.xml"],
 };
 
 const SUPABASE_URL = "https://dbjdxbnfgnyrokfxzddp.supabase.co";
@@ -16,6 +18,10 @@ const SUPABASE_ANON_KEY = "sb_publishable_BVkSg-5a3K6XE4_ZtgPesQ_wJCL5Zzi";
 
 function escapeHtml(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function escapeXml(s: string) {
+  return escapeHtml(s).replace(/'/g, "&apos;");
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,15 +33,26 @@ async function supabaseGet(path: string): Promise<any[] | null> {
   return (await res.json()) as any[];
 }
 
-export default async function middleware(request: Request) {
-  const url = new URL(request.url);
-  const match = url.pathname.match(/^\/concepts\/([^/]+)\/?$/);
-  // matcher already scopes this middleware to /concepts/:slug*, this is a
-  // defensive fallback for any shape that doesn't fit (e.g. a bare
-  // trailing slash), proxy straight through unmodified.
-  if (!match) return fetch(request);
+async function handleSitemap(origin: string): Promise<Response> {
+  const concepts = (await supabaseGet("concepts?select=slug,updated_at")) ?? [];
+  const urls = [
+    `<url><loc>${origin}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+    `<url><loc>${origin}/pricing</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>`,
+    ...concepts.map((c) => {
+      const lastmod = c.updated_at ? `<lastmod>${new Date(c.updated_at).toISOString().slice(0, 10)}</lastmod>` : "";
+      return `<url><loc>${origin}/concepts/${escapeXml(c.slug)}</loc>${lastmod}<changefreq>weekly</changefreq><priority>0.8</priority></url>`;
+    }),
+  ].join("\n  ");
 
-  const slug = match[1];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  ${urls}\n</urlset>\n`;
+
+  return new Response(xml, {
+    status: 200,
+    headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" },
+  });
+}
+
+async function handleConcept(request: Request, url: URL, slug: string): Promise<Response> {
   const originResponse = await fetch(request);
   const html = await originResponse.text();
 
@@ -52,10 +69,12 @@ export default async function middleware(request: Request) {
     );
 
     let thumb = "";
+    let youtubeId = "";
     const clipId = breakdowns[0]?.clip_id;
     if (clipId) {
       const clips = await supabaseGet(`clips?id=eq.${clipId}&select=youtube_id`);
-      if (clips?.[0]?.youtube_id) thumb = `https://img.youtube.com/vi/${clips[0].youtube_id}/hqdefault.jpg`;
+      youtubeId = clips?.[0]?.youtube_id ?? "";
+      if (youtubeId) thumb = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
     }
 
     const title = concept.title as string;
@@ -77,9 +96,22 @@ export default async function middleware(request: Request) {
       `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
       `<meta name="twitter:description" content="${escapeHtml(summary)}" />`,
       `<meta name="twitter:image" content="${ogImageUrl}" />`,
-    ].join("\n    ");
+    ];
 
-    const injected = html.replace(/<title>.*?<\/title>/s, "").replace("</head>", `    ${tags}\n  </head>`);
+    if (youtubeId) {
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        name: title,
+        description: summary || title,
+        thumbnailUrl: thumb,
+        uploadDate: new Date().toISOString().slice(0, 10),
+        embedUrl: `https://www.youtube.com/embed/${youtubeId}`,
+      };
+      tags.push(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`);
+    }
+
+    const injected = html.replace(/<title>.*?<\/title>/s, "").replace("</head>", `    ${tags.join("\n    ")}\n  </head>`);
 
     const headers = new Headers(originResponse.headers);
     headers.delete("content-length");
@@ -91,4 +123,20 @@ export default async function middleware(request: Request) {
     const headers = new Headers(originResponse.headers);
     return new Response(html, { status: originResponse.status, headers });
   }
+}
+
+export default async function middleware(request: Request) {
+  const url = new URL(request.url);
+
+  if (url.pathname === "/sitemap.xml") {
+    return handleSitemap(url.origin);
+  }
+
+  const match = url.pathname.match(/^\/concepts\/([^/]+)\/?$/);
+  // matcher already scopes this middleware to /concepts/:slug* and
+  // /sitemap.xml, this is a defensive fallback for any shape that doesn't
+  // fit (e.g. a bare trailing slash), proxy straight through unmodified.
+  if (!match) return fetch(request);
+
+  return handleConcept(request, url, match[1]);
 }

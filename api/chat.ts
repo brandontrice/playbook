@@ -1,9 +1,25 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
-// Corpus-stuffed chat, not RAG. Fine while the concept library is small
-// (a handful of concepts). Upgrade to real pgvector retrieval in v1.1 once
-// the library outgrows what fits comfortably in a system prompt.
+// Corpus-stuffed chat, not RAG. Fine while the concept library is small.
+// RAG_UPGRADE_THRESHOLD below is the trigger to revisit that.
+const RAG_UPGRADE_THRESHOLD = 40;
+
+// This is a public, unauthenticated endpoint that calls Groq on every
+// request, so it needs its own abuse protection: a simple per-IP sliding
+// window backed by the chat_rate_limit table (checked/written with the
+// service-role key, no public RLS policy needed), plus hard caps on
+// request shape so one request can't blow up the prompt size either.
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_PER_WINDOW = 8;
+const MAX_MESSAGES = 20;
+const MAX_MESSAGE_LENGTH = 4000;
+
+function getIdentifier(req: VercelRequest): string {
+  const forwarded = req.headers["x-forwarded-for"];
+  const ip = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(",")[0];
+  return (ip ?? req.socket?.remoteAddress ?? "unknown").trim();
+}
 
 const DIFFICULTY_INSTRUCTIONS: Record<string, string> = {
   new: "The user has never watched this sport. Avoid jargon entirely, or define it immediately in plain language the first time you use it.",
@@ -38,13 +54,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(400).json({ error: "messages required" });
     return;
   }
+  if (messages.length > MAX_MESSAGES || messages.some((m) => (m.content?.length ?? 0) > MAX_MESSAGE_LENGTH)) {
+    res.status(400).json({ error: "message too long or too many messages in this conversation" });
+    return;
+  }
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
-  const { data: concepts } = await supabase
+
+  const identifier = getIdentifier(req);
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
+  const { count: recentCount } = await supabase
+    .from("chat_rate_limit")
+    .select("id", { count: "exact", head: true })
+    .eq("identifier", identifier)
+    .gte("created_at", windowStart);
+
+  if ((recentCount ?? 0) >= RATE_LIMIT_MAX_PER_WINDOW) {
+    res.status(429).json({ error: "Too many requests, slow down a bit and try again in a minute." });
+    return;
+  }
+  await supabase.from("chat_rate_limit").insert({ identifier });
+  // Cheap probabilistic cleanup instead of a separate cron job just for this.
+  if (Math.random() < 0.05) {
+    void supabase.from("chat_rate_limit").delete().lt("created_at", new Date(Date.now() - 3600_000).toISOString());
+  }
+
+  const { data: concepts, count: conceptCount } = await supabase
     .from("concepts")
-    .select("title, summary, body_md, slug")
+    .select("title, summary, body_md, slug", { count: "exact" })
     .order("sort_order")
     .limit(50);
+
+  // Corpus-stuffing (the whole library in the system prompt) is fine at
+  // today's size, but silently degrades as the library grows: bigger
+  // prompts, slower/costlier responses, and eventually truncation past the
+  // .limit(50) cap above. This doesn't fix that, it just makes it loud
+  // instead of silent, watch the Vercel function logs.
+  if ((conceptCount ?? 0) >= RAG_UPGRADE_THRESHOLD) {
+    console.warn(
+      `[chat] concept count (${conceptCount}) has reached the RAG_UPGRADE_THRESHOLD (${RAG_UPGRADE_THRESHOLD}). Corpus-stuffing still works but this is the trigger to build real pgvector retrieval instead.`,
+    );
+  }
 
   const corpus = (concepts ?? [])
     .map((c) => `### ${c.title}${c.slug === conceptSlug ? " (current concept)" : ""}\n${c.summary ?? ""}\n${c.body_md ?? ""}`)

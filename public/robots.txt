@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://playbook-gilt.vercel.app/sitemap.xml

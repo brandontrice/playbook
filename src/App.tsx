@@ -1,11 +1,16 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "./lib/theme";
 import { Nav } from "./components/Nav";
 import { ScoreTicker } from "./components/Scoreboard/ScoreTicker";
 import { Home } from "./pages/Home";
 import { ConceptDetail } from "./pages/ConceptDetail";
-import { Admin } from "./pages/admin/Admin";
 import { Pricing } from "./pages/Pricing";
+
+// The authoring UI is only ever used by one person, code-splitting it out
+// keeps it from shipping in the bundle every regular visitor downloads.
+const Admin = lazy(() => import("./pages/admin/Admin").then((m) => ({ default: m.Admin })));
 
 function AppRoutes() {
   const location = useLocation();
@@ -18,7 +23,14 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/concepts/:slug" element={<ConceptDetail />} />
         <Route path="/pricing" element={<Pricing />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route
+          path="/admin"
+          element={
+            <Suspense fallback={<div className="pb-skeleton m-6 h-40" />}>
+              <Admin />
+            </Suspense>
+          }
+        />
       </Routes>
     </div>
   );
@@ -34,6 +46,7 @@ function App() {
           <AppRoutes />
         </div>
       </BrowserRouter>
+      <Analytics />
     </ThemeProvider>
   );
 }

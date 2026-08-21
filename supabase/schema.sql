@@ -110,7 +110,18 @@ create table if not exists user_progress (
   primary key (user_id, concept_id)
 );
 
+-- backs api/chat.ts's rate limit, checked/written server-side with the
+-- service-role key only, no public RLS policies needed
+create table if not exists chat_rate_limit (
+  id bigint generated always as identity primary key,
+  identifier text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists chat_rate_limit_identifier_idx on chat_rate_limit(identifier, created_at);
+
 -- row level security: public read on all content, writes restricted to the admin account
+alter table chat_rate_limit enable row level security;
 alter table sports enable row level security;
 alter table concepts enable row level security;
 alter table clips enable row level security;

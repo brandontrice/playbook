@@ -345,7 +345,7 @@ export function BreakdownPlayer({ clip, beats }: { clip: Clip; beats: Beat[] }) 
               <button
                 type="button"
                 onClick={() => jumpTo(beat, i)}
-                className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${
+                className={`flex w-full items-start gap-3 rounded-lg border px-3 py-2 text-left transition-colors duration-200 ${
                   isActive
                     ? "border-primary bg-primary/10"
                     : "border-surface-border bg-surface hover:border-primary/60"

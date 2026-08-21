@@ -163,7 +163,7 @@ export function Home() {
                   key={team}
                   type="button"
                   onClick={() => setTeamFilter(active ? null : team)}
-                  className="rounded-full border px-3 py-1 text-xs font-semibold uppercase transition-colors"
+                  className="rounded-full border px-3 py-1 text-xs font-semibold uppercase transition-colors duration-200"
                   style={{
                     borderColor: active ? tint ?? "var(--pb-primary)" : "var(--pb-surface-border)",
                     background: active ? `${tint ?? "var(--pb-primary)"}33` : "transparent",

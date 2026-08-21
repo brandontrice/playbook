@@ -51,7 +51,7 @@ export function Quiz({ items }: { items: QuizItem[] }) {
               type="button"
               disabled={selected !== null}
               onClick={() => choose(i)}
-              className={`rounded-lg border px-4 py-2 text-left transition-colors ${
+              className={`rounded-lg border px-4 py-2 text-left transition-colors duration-200 ${
                 showState && isCorrect
                   ? "border-accent-2 bg-accent-2/20"
                   : showState && isSelected

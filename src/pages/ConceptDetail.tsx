@@ -143,7 +143,7 @@ export function ConceptDetail() {
               key={t}
               type="button"
               onClick={() => setTab(t)}
-              className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition-colors ${
+              className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition-colors duration-200 ${
                 tab === t
                   ? "border-accent text-text"
                   : "border-transparent text-text-dim hover:text-text"

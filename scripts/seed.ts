@@ -509,6 +509,197 @@ const CONCEPTS: SeedConcept[] = [
       },
     ],
   },
+  {
+    sport_slug: "basketball",
+    slug: "drop-coverage-pick-and-roll",
+    title: "Drop Coverage",
+    summary: "The screener's defender sinks toward the rim instead of stepping up to the level of the screen, trading the mid-range for paint protection.",
+    body_md:
+      "In drop coverage, the screener's defender doesn't fight over the top of the ball screen or blitz out at the ball-handler. He retreats toward the rim instead, staying between the roller and the basket while the on-ball defender fights back over the top. Why it works: it takes away the two highest-value shots on the floor, a layup at the rim and a lob to the roller, by keeping a second body planted in the paint for the whole possession. Counter: a ball-handler who can shoot confidently off the dribble just pulls up in the space the drop defender conceded, at the elbow or the mid-range, since that's exactly the shot the coverage is built to allow.",
+    difficulty: 3,
+    sort_order: 17,
+    clip: {
+      youtube_id: "d2iHPvDq8i4",
+      start_sec: 0,
+      title: "What is drop defense ball screen coverage?",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Screen's coming, watch the screener's defender instead of the ball.", overlay: { arrows: [{ x1: 55, y1: 45, x2: 50, y2: 60 }] } },
+      { t: 5, action: "note", caption: "He's sinking toward the rim, not stepping up to meet the screen at all." },
+      { t: 9, action: "note", caption: "That's the trade: the paint stays walled off, but the mid-range pull-up is sitting right there." },
+    ],
+    diagram: {
+      players: [
+        { id: "1", x: 45, y: 55, team: "offense" },
+        { id: "5", x: 55, y: 45, team: "offense" },
+        { id: "X1", x: 48, y: 48, team: "defense" },
+        { id: "X5", x: 50, y: 65, team: "defense" },
+      ],
+      ball: { x: 45, y: 55 },
+      annotations: [
+        { type: "arrow", x1: 55, y1: 45, x2: 50, y2: 65, label: "drops back" },
+        { type: "label", x: 45, y: 40, text: "mid-range window" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What does drop coverage give up in exchange for protecting the rim?",
+        choices: [
+          "A mid-range pull-up jumper for the ball-handler",
+          "An automatic steal",
+          "A guaranteed offensive foul",
+          "Nothing, it has no tradeoff",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "basketball",
+    slug: "flare-screen-shooter",
+    title: "The Flare Screen",
+    summary: "A screener seals a defender while the shooter cuts away from the ball, not toward it, popping to a new spot the defender can't get in front of.",
+    body_md:
+      "A flare screen is set on a teammate's defender while that teammate is moving away from the ball rather than toward it, popping out to open space as the screener's body seals off the direct path behind him. Why it works: the defender is fighting his own momentum in the wrong direction, chasing a man who's opening up further from the ball right as a second body cuts off the shortest route to him. Counter: the screener's own defender switches onto the shooter early, the two defenders trading assignments before the flare ever fully develops, rather than letting the original defender try to fight through it.",
+    difficulty: 2,
+    sort_order: 18,
+    clip: {
+      youtube_id: "Uu0iBPczS5s",
+      start_sec: 0,
+      title: "What's A Flare Screen?! Increase Your Basketball IQ!!!",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch the screener set up on the shooter's defender, not on the ball-handler's.", overlay: { arrows: [{ x1: 40, y1: 50, x2: 65, y2: 30 }] } },
+      { t: 5, action: "note", caption: "The shooter's flaring away from the ball, and the defender's stuck fighting the wrong direction." },
+      { t: 9, action: "note", caption: "That's the whole idea: momentum going one way, the open shot appearing the other." },
+    ],
+    diagram: {
+      players: [
+        { id: "3", x: 40, y: 50, team: "offense" },
+        { id: "X3", x: 42, y: 45, team: "defense" },
+        { id: "5", x: 50, y: 55, team: "offense" },
+      ],
+      ball: { x: 50, y: 20 },
+      annotations: [
+        { type: "arrow", x1: 40, y1: 50, x2: 68, y2: 28, label: "flare" },
+        { type: "label", x: 70, y: 22, text: "open catch" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "Why is a flare screen effective at freeing a shooter?",
+        choices: [
+          "It seals the defender while the shooter moves away from the ball, fighting the defender's own momentum",
+          "It's only legal to set away from the ball",
+          "It requires the shooter to already be open",
+          "It always results in a switch",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "basketball",
+    slug: "post-up-up-and-under",
+    title: "The Up-and-Under",
+    summary: "A shot fake in the post that gets the defender airborne, then a step-through to the other side for a clean finish while he's still coming down.",
+    body_md:
+      "Working from the block with his back to the basket, the post player puts up a hard shot fake, hard enough that the defender leaves his feet to contest a shot that was never actually coming. The instant that defender commits to the air, the post player pivots under and steps through to the rim on the other side. Why it works: a defender who's already jumped can't change direction, so once the fake sells, the finish is unguarded no matter which way the step-through goes. Counter: defenders are coached to stay grounded on post fakes and contest with a straight-up hand instead of jumping, trading a slightly weaker contest for never surrendering the free look underneath.",
+    difficulty: 3,
+    sort_order: 19,
+    clip: {
+      youtube_id: "VTBMVKD23QA",
+      start_sec: 0,
+      title: "How to Do an Up & Under | Basketball Moves",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Back to the basket on the block, this is the setup, watch for the fake next.", overlay: { arrows: [{ x1: 35, y1: 45, x2: 35, y2: 60 }] } },
+      { t: 6, action: "note", caption: "Hard shot fake, the defender's already leaving his feet to contest it." },
+      { t: 10, action: "note", caption: "Step-through to the other side while he's still in the air, nothing he can do about it now." },
+    ],
+    diagram: {
+      players: [
+        { id: "5", x: 35, y: 45, team: "offense" },
+        { id: "X", x: 35, y: 40, team: "defense" },
+      ],
+      ball: { x: 35, y: 45 },
+      annotations: [
+        { type: "arrow", x1: 35, y1: 45, x2: 30, y2: 55, label: "fake" },
+        { type: "arrow", x1: 30, y1: 55, x2: 42, y2: 50, label: "step-through" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "Why does the up-and-under work once the shot fake gets the defender to jump?",
+        choices: [
+          "A defender in the air can't change direction to stop the step-through",
+          "It's an automatic and-one every time",
+          "The shot clock resets on a shot fake",
+          "It only works against zone defenses",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "basketball",
+    slug: "boxing-out-defensive-rebound",
+    title: "Boxing Out",
+    summary: "Finding your man and sealing him away from the rim the instant a shot goes up, before ever turning to look for the ball.",
+    body_md:
+      "The moment a shot leaves the shooter's hand, the defender's first move isn't to watch the flight of the ball, it's to find his man and get a body on him, sealing him away from the basket with a wide stance and a low center of gravity. Why it works: positioning wins more rebounds than jumping ability does, since a defender who's already sealed his man out has a clear path to the ball while the offensive player is still fighting just to get around him. Counter: offensive rebounders beat the box-out by moving before the shot goes up, crashing an angle the defender hasn't sealed yet, rather than trying to fight through a seal that's already locked in.",
+    difficulty: 2,
+    sort_order: 20,
+    clip: {
+      youtube_id: "Qddu76JrqF4",
+      start_sec: 0,
+      title: "Box Out In Basketball For Rebounds",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Shot's up, watch the defender find his man instead of watching the ball.", overlay: { arrows: [{ x1: 50, y1: 55, x2: 50, y2: 65 }] } },
+      { t: 4, action: "note", caption: "Wide stance, low center of gravity, he's sealing him away from the rim right now." },
+      { t: 7, action: "note", caption: "The path to the ball is already clear, the rebound was decided before it even came off the rim." },
+    ],
+    diagram: {
+      players: [
+        { id: "X", x: 50, y: 60, team: "defense" },
+        { id: "1", x: 50, y: 68, team: "offense" },
+      ],
+      ball: { x: 50, y: 30 },
+      annotations: [
+        { type: "arrow", x1: 50, y1: 68, x2: 50, y2: 60, label: "sealed" },
+        { type: "label", x: 50, y: 25, text: "shot up" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What actually wins most rebounds, according to how boxing out works?",
+        choices: [
+          "Positioning and sealing your man before the ball arrives, not jumping ability",
+          "Being the tallest player on the floor",
+          "Standing directly under the rim at all times",
+          "Fouling the shooter",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
   // Football: 3 offensive concepts, 3 defensive, sourced the same way as
   // the basketball set (short clips, verified live via oEmbed before
   // inclusion, a mix of real game moments and short explainer clips from
@@ -792,6 +983,201 @@ const CONCEPTS: SeedConcept[] = [
           "A defense with too many players on the field",
           "Running the ball only on 3rd down",
           "The offense huddling before the play",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "zone-read",
+    title: "The Zone Read",
+    summary: "The quarterback doesn't decide before the snap: he reads the backside defensive end and only pulls the ball if that end crashes down to chase the running back.",
+    body_md:
+      "The offensive line blocks it like an ordinary inside zone run, and the backside defensive end is left unblocked on purpose. The quarterback watches that one defender through the mesh point: if he crashes down to chase the running back, the quarterback pulls the ball and runs the edge himself. Why it works: the defense is a man short no matter which way that end goes, since blocking him would just take a gap away from the run and leave someone else uncovered. Counter: teams assign a spy or a scrape exit defender specifically to shadow the quarterback's keep lane, accepting a free run at the running back in exchange for never leaving the quarterback unaccounted for.",
+    difficulty: 3,
+    sort_order: 21,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "p2HP9T3jz2c",
+      start_sec: 0,
+      title: "Fast Quarterback + Outside Zone = Defensive Nightmare",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch the backside end, he's the read, not a blocked man.", overlay: { arrows: [{ x1: 65, y1: 40, x2: 52, y2: 48 }] } },
+      { t: 5, action: "note", caption: "Quarterback pulls it, that end just took himself out of the play." },
+      { t: 9, action: "note", caption: "Why it works: the defense is a man short no matter which way he goes." },
+    ],
+    diagram: {
+      players: [
+        { id: "QB", x: 50, y: 45, team: "offense" },
+        { id: "RB", x: 50, y: 52, team: "offense" },
+        { id: "DE", x: 68, y: 40, team: "defense" },
+      ],
+      ball: { x: 50, y: 45 },
+      annotations: [
+        { type: "arrow", x1: 68, y1: 40, x2: 55, y2: 50, label: "crashes, so QB pulls" },
+        { type: "arrow", x1: 50, y1: 45, x2: 75, y2: 30, label: "keep" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What decides whether the quarterback keeps the ball or hands it off on a zone read?",
+        choices: [
+          "How the backside, unblocked defensive end reacts to the mesh point",
+          "A signal from the sideline after the snap",
+          "The running back always gets the ball first",
+          "Which hash mark the ball is snapped from",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "screen-pass-vs-blitz",
+    title: "Screen Pass vs. the Blitz",
+    summary: "A pass thrown behind the line of scrimmage turns a hard-charging pass rush's own speed against it, leaving defenders sprinting the wrong direction when the catch happens.",
+    body_md:
+      "The quarterback sells a normal dropback while the offensive line lets the rush come free for a beat, then releases downfield to set up in front of the running back as blockers. Why it works: an aggressive rush is already running full speed upfield past the line of scrimmage, so by the time defenders realize the ball is behind them, their own momentum is carrying them the wrong way to make the tackle. Counter: defenses teach rushers to keep their eyes on the backfield and stay under control instead of selling out for the sack, and assign a defender to read screen-blocking angles instead of just rushing blind.",
+    difficulty: 2,
+    sort_order: 22,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "h3x6GzPpD-s",
+      start_sec: 0,
+      title: "39-Yard TD: Warren Scores on a Screen Pass",
+      teams: ["PIT"],
+      players: ["Jaylen Warren", "Aaron Rodgers"],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Rush is crashing hard upfield, the line is letting them go.", overlay: { arrows: [{ x1: 55, y1: 20, x2: 70, y2: 8 }] } },
+      { t: 5, action: "note", caption: "Ball's already out to the back, with blockers stacked up in front of him." },
+      { t: 9, action: "note", caption: "Why it works: the rush's own speed just carried them past the play, they can't get back in time." },
+    ],
+    diagram: {
+      players: [
+        { id: "QB", x: 50, y: 40, team: "offense" },
+        { id: "RB", x: 30, y: 45, team: "offense" },
+        { id: "OL", x: 35, y: 40, team: "offense" },
+        { id: "DE", x: 55, y: 20, team: "defense" },
+      ],
+      ball: { x: 30, y: 45 },
+      annotations: [
+        { type: "arrow", x1: 50, y1: 40, x2: 30, y2: 45, label: "screen throw" },
+        { type: "arrow", x1: 55, y1: 20, x2: 70, y2: 10, label: "rush runs past the play" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "Why does an aggressive pass rush make a screen pass more effective, not less?",
+        choices: [
+          "The rushers are already running upfield past the play, so they can't get back in time to make the tackle",
+          "Screens are only legal against a blitz",
+          "It forces the defense to call a timeout",
+          "The offensive line is not allowed to block downfield otherwise",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "press-man-bail-technique",
+    title: "Press-Man Bail Technique",
+    summary: "A cornerback presses at the line to threaten a jam, then opens his hips and runs stride for stride with the receiver instead of staying glued to him.",
+    body_md:
+      "At the snap the cornerback shows press, daring the receiver to release into him, but instead of staying square and jamming, he opens his hips into a backpedal turned sprint and runs from a cushion instead of grabbing for the receiver. Why it works: the receiver still has to respect the jam that never fully arrives, which slows his release just enough for the defender to match his speed once he opens up. Counter: receivers train a hard, sudden release to attack the cushion immediately, forcing the corner to commit to the bail before he's actually ready, and route runners use double moves that punish a defender already running full speed in one direction.",
+    difficulty: 3,
+    sort_order: 23,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "VixJb7qj5r8",
+      start_sec: 0,
+      title: "Cornerbacks Don't Get Beat Doing This: Bail Technique",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Corner shows press right at the line, watch his feet, not his hands.", overlay: { arrows: [{ x1: 40, y1: 42, x2: 42, y2: 20 }] } },
+      { t: 5, action: "note", caption: "He opens his hips and bails instead of jamming, now he's running with the route." },
+      { t: 9, action: "note", caption: "That's the technique: threaten the jam, then run the route from a cushion instead of grabbing for it." },
+    ],
+    diagram: {
+      players: [
+        { id: "CB", x: 40, y: 42, team: "defense" },
+        { id: "WR", x: 40, y: 50, team: "offense" },
+      ],
+      annotations: [
+        { type: "arrow", x1: 40, y1: 42, x2: 42, y2: 15, label: "bail, opens and runs" },
+        { type: "arrow", x1: 40, y1: 50, x2: 40, y2: 18, label: "release downfield" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What does the bail technique actually rely on to work?",
+        choices: [
+          "The threat of a jam that never fully arrives, which still slows the receiver's release",
+          "The cornerback being taller than the receiver",
+          "A safety always doubling the same receiver",
+          "The receiver running the wrong route",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "blitz-pickup-pass-protection",
+    title: "Blitz Pickup",
+    summary: "A running back scans for the one rusher the offensive line's blocking scheme leaves free, then steps up to cut him off before he ever reaches the quarterback.",
+    body_md:
+      "Pass protection starts with the offensive line taking the defenders they're assigned, but the running back's job is to find whoever's left over, the blitzer no one up front has. Why it works: picking him up in the backfield, before he ever reaches the pocket, buys the quarterback the same clean pocket he'd have against a simple four-man rush, no matter how many extra defenders the defense sends. Counter: defenses stack the protection's math by bringing more rushers than the back and line can account for, or disguise which defender is actually coming until it's too late for the back to get to him in time.",
+    difficulty: 3,
+    sort_order: 24,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "XMCfWBJKsNI",
+      start_sec: 0,
+      title: "Saquon Barkley's Blitz Pickup",
+      teams: ["PHI"],
+      players: ["Saquon Barkley"],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch him scan before the snap, he's already looking for the free rusher.", overlay: { arrows: [{ x1: 62, y1: 32, x2: 52, y2: 44 }] } },
+      { t: 5, action: "note", caption: "He steps up and cuts the blitzer off in the backfield, before the rusher ever reaches the pocket." },
+      { t: 9, action: "note", caption: "Why it works: the pocket stays clean, no matter how many extra defenders the blitz sent." },
+    ],
+    diagram: {
+      players: [
+        { id: "QB", x: 50, y: 38, team: "offense" },
+        { id: "RB", x: 50, y: 48, team: "offense" },
+        { id: "LB", x: 62, y: 32, team: "defense" },
+      ],
+      ball: { x: 50, y: 38 },
+      annotations: [
+        { type: "arrow", x1: 62, y1: 32, x2: 52, y2: 42, label: "blitz" },
+        { type: "arrow", x1: 50, y1: 48, x2: 53, y2: 43, label: "picks him up" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What is the running back's actual job on a pass protection snap?",
+        choices: [
+          "Identify and block whichever rusher the offensive line's assignments don't already cover",
+          "Always run a route regardless of the blitz",
+          "Block the same defender every play",
+          "Stay behind the quarterback and never move",
         ],
         answer_idx: 0,
       },

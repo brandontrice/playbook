@@ -68,7 +68,12 @@ function useConceptFilm(conceptId: string) {
         setLoading(false);
         return;
       }
-      const { data: clip } = await supabase.from("clips").select("*").eq("id", breakdown.clip_id).single();
+      const { data: clip } = await supabase
+        .from("clips")
+        .select("*")
+        .eq("id", breakdown.clip_id)
+        .eq("status", "active")
+        .maybeSingle();
       setFilm(clip ? { clip, beats: breakdown.beats } : null);
       setLoading(false);
     })();

@@ -21,7 +21,7 @@ Genuinely multi-sport, not basketball with a football section bolted on: `sports
 
 ## Secrets
 
-`.env.local` holds real keys and is gitignored: never commit it, never put the Supabase service-role key or the Groq key in anything that ships to the browser (only `VITE_`-prefixed vars reach the client bundle). The service-role key is used only in local one-off scripts (e.g. `scripts/seed.ts`) that need to bypass RLS; the Groq key is used only inside the `api/chat` serverless function.
+`.env.local` holds real keys and is gitignored: never commit it, never put the Supabase service-role key or the Groq key in anything that ships to the browser (only `VITE_`-prefixed vars reach the client bundle). The service-role key is used only in local one-off scripts (e.g. `scripts/seed.ts`) and the `api/check-dead-links` cron function, both of which need to bypass RLS; the Groq key is used only inside the `api/chat` serverless function; `CRON_SECRET` gates `api/check-dead-links` against being invoked by anyone but Vercel Cron.
 
 ## Git
 

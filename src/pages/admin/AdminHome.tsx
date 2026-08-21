@@ -2,6 +2,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Concept, Sport } from "../../types";
 
+const BULK_CLIPS_TEMPLATE = `dQw4w9WgXcQ,Nuggets vs Lakers Spain PnR,124,DEN|LAL,Jokic|Murray,2023-24,canonical,landscape`;
+const BULK_CONCEPTS_TEMPLATE = `basketball,Spain Pick-and-Roll,spain-pnr,A back screen on the screener's defender,3`;
+
 const DIAGRAM_TEMPLATE = `{
   "players": [
     { "id": "1", "x": 50, "y": 50, "team": "offense" },
@@ -152,6 +155,8 @@ export function AdminHome() {
   const [beatRows, setBeatRows] = useState<BeatRow[]>([emptyBeatRow()]);
   const [useRawBeatsJson, setUseRawBeatsJson] = useState(false);
   const [rawBeatsJson, setRawBeatsJson] = useState("[]");
+  const [bulkConceptsText, setBulkConceptsText] = useState("");
+  const [bulkClipsText, setBulkClipsText] = useState("");
 
   async function refresh() {
     const [s, c, cl] = await Promise.all([
@@ -218,6 +223,65 @@ export function AdminHome() {
     flash(error ? error.message : "Clip created.");
     e.currentTarget.reset();
     refresh();
+  }
+
+  async function bulkImportConcepts(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const sportIdBySlug: Record<string, string> = {};
+    for (const s of sports) sportIdBySlug[s.slug] = s.id;
+    try {
+      const rows = bulkConceptsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [sportSlug, title, slug, summary, difficulty] = line.split(",").map((s) => s.trim());
+          const sport_id = sportIdBySlug[sportSlug];
+          if (!sport_id) throw new Error(`Unknown sport slug "${sportSlug}", add that sport first.`);
+          if (!title || !slug) throw new Error(`Missing title/slug on line: ${line}`);
+          return { sport_id, title, slug, summary: summary || null, difficulty: Number(difficulty) || 1 };
+        });
+      if (rows.length === 0) throw new Error("Nothing to import.");
+      const { error } = await supabase.from("concepts").insert(rows);
+      flash(error ? error.message : `Imported ${rows.length} concept(s).`);
+      setBulkConceptsText("");
+      refresh();
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Couldn't parse that, check the format.");
+    }
+  }
+
+  async function bulkImportClips(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      const rows = bulkClipsText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [youtube_id, title, start_sec, teams, players, season, quality, orientation] = line
+            .split(",")
+            .map((s) => s.trim());
+          if (!youtube_id || !title) throw new Error(`Missing youtube_id/title on line: ${line}`);
+          return {
+            youtube_id,
+            title,
+            start_sec: Number(start_sec) || 0,
+            teams: teams ? teams.split("|").map((s) => s.trim()).filter(Boolean) : [],
+            players: players ? players.split("|").map((s) => s.trim()).filter(Boolean) : [],
+            season: season || null,
+            quality: quality || "canonical",
+            orientation: orientation || "landscape",
+          };
+        });
+      if (rows.length === 0) throw new Error("Nothing to import.");
+      const { error } = await supabase.from("clips").insert(rows);
+      flash(error ? error.message : `Imported ${rows.length} clip(s).`);
+      setBulkClipsText("");
+      refresh();
+    } catch (err) {
+      flash(err instanceof Error ? err.message : "Couldn't parse that, check the format.");
+    }
   }
 
   async function createBreakdown(e: FormEvent<HTMLFormElement>) {
@@ -308,6 +372,40 @@ export function AdminHome() {
             </form>
           </Section>
 
+          <Section title="Existing concepts">
+            <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
+              {concepts.length === 0 && <p className="text-xs text-text-dim">None yet.</p>}
+              {concepts.map((c) => (
+                <div key={c.id} className="flex items-center justify-between gap-2 rounded-lg bg-bg-2 px-2.5 py-1.5 text-xs">
+                  <span className="truncate text-text-dim">{c.title}</span>
+                  <a
+                    href={`/concepts/${c.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 text-primary hover:underline"
+                  >
+                    Preview ↗
+                  </a>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Bulk import concepts">
+            <form onSubmit={bulkImportConcepts} className="flex flex-col gap-2">
+              <p className="text-xs text-text-dim">
+                One concept per line: <code className="text-[11px]">sport_slug,title,slug,summary,difficulty</code>
+              </p>
+              <TextArea
+                value={bulkConceptsText}
+                onChange={(e) => setBulkConceptsText(e.target.value)}
+                placeholder={BULK_CONCEPTS_TEMPLATE}
+                rows={5}
+              />
+              <SubmitButton label="Import concepts" />
+            </form>
+          </Section>
+
           <Section title="Clip">
             <form onSubmit={createClip} className="flex flex-col gap-2">
               <TextInput name="youtube_id" placeholder="YouTube video ID (e.g. dQw4w9WgXcQ)" required />
@@ -326,6 +424,22 @@ export function AdminHome() {
                 <option value="portrait">portrait (Shorts, phone-recorded clips)</option>
               </select>
               <SubmitButton label="Add clip" />
+            </form>
+          </Section>
+
+          <Section title="Bulk import clips">
+            <form onSubmit={bulkImportClips} className="flex flex-col gap-2">
+              <p className="text-xs text-text-dim">
+                One clip per line:{" "}
+                <code className="text-[11px]">youtube_id,title,start_sec,teams|pipe,players|pipe,season,quality,orientation</code>
+              </p>
+              <TextArea
+                value={bulkClipsText}
+                onChange={(e) => setBulkClipsText(e.target.value)}
+                placeholder={BULK_CLIPS_TEMPLATE}
+                rows={5}
+              />
+              <SubmitButton label="Import clips" />
             </form>
           </Section>
         </div>

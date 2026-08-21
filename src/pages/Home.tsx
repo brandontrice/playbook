@@ -112,7 +112,9 @@ export function Home() {
       const [sportsRes, conceptsRes, clipLinksRes] = await Promise.all([
         supabase.from("sports").select("*").order("name"),
         supabase.from("concepts").select("*").order("sort_order"),
-        supabase.from("clip_concepts").select("concept_id, clips(youtube_id, players, teams)"),
+        // !inner + the embedded-table filter drops any clip_concepts row
+        // whose clip has been marked dead by the nightly link-check cron.
+        supabase.from("clip_concepts").select("concept_id, clips!inner(youtube_id, players, teams)").eq("clips.status", "active"),
       ]);
       setSports(sportsRes.data ?? []);
       setConcepts(conceptsRes.data ?? []);
@@ -135,7 +137,12 @@ export function Home() {
           .limit(1)
           .maybeSingle();
         if (breakdown) {
-          const { data: clip } = await supabase.from("clips").select("*").eq("id", breakdown.clip_id).single();
+          const { data: clip } = await supabase
+            .from("clips")
+            .select("*")
+            .eq("id", breakdown.clip_id)
+            .eq("status", "active")
+            .maybeSingle();
           if (clip) setFeatured({ concept: firstConcept, clip, beats: breakdown.beats });
         }
       }

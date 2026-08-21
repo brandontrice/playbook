@@ -70,18 +70,24 @@ export function ConceptDetail() {
         supabase.from("quiz_items").select("*").eq("concept_id", conceptData.id),
       ]);
 
-      const bds: Breakdown[] = breakdownsRes.data ?? [];
-      setBreakdowns(bds);
+      const allBds: Breakdown[] = breakdownsRes.data ?? [];
       setDiagram(diagramRes.data ?? null);
       setQuizItems(quizRes.data ?? []);
 
-      const clipIds = [...new Set(bds.map((b) => b.clip_id))];
+      const clipIds = [...new Set(allBds.map((b) => b.clip_id))];
+      let bds = allBds;
       if (clipIds.length > 0) {
-        const { data: clips } = await supabase.from("clips").select("*").in("id", clipIds);
+        // A dead-link sweep (api/check-dead-links.ts) flips a clip's status
+        // to "dead" rather than deleting it, so its breakdown has to be
+        // filtered out here too, otherwise the film tab shows but renders
+        // nothing for it.
+        const { data: clips } = await supabase.from("clips").select("*").eq("status", "active").in("id", clipIds);
         const map: Record<string, Clip> = {};
         for (const c of clips ?? []) map[c.id] = c;
         setClipsById(map);
+        bds = allBds.filter((b) => map[b.clip_id]);
       }
+      setBreakdowns(bds);
       setLoading(false);
 
       // "Up next" is derived from sort_order within the same sport rather

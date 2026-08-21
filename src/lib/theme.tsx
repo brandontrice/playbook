@@ -2,17 +2,20 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 
 export type Theme = "modern" | "classic";
 
-const STORAGE_KEY = "playbook-theme";
-
+// Committed to MyPark as the one theme (no user-facing switcher, see
+// Nav.tsx). Showtime's tokens stay fully defined in index.css and this
+// provider still technically supports switching, deliberately left
+// functional rather than ripped out, in case a theme switcher comes back
+// later, it's just unreachable from the UI today. STORAGE_KEY intentionally
+// unused now: forcing "modern" always, so a stale localStorage value from
+// before this change can't resurrect Showtime on someone's next visit.
 const ThemeContext = createContext<{
   theme: Theme;
   setTheme: (t: Theme) => void;
 } | null>(null);
 
 function readInitialTheme(): Theme {
-  if (typeof window === "undefined") return "modern";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === "classic" ? "classic" : "modern";
+  return "modern";
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -20,7 +23,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
   return (

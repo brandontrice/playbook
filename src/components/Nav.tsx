@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "./ThemeToggle";
 import { SoundtrackToggle } from "./SoundtrackToggle";
 import { Wordmark } from "./Wordmark";
 
@@ -30,7 +29,6 @@ export function Nav() {
           Admin
         </Link>
         <SoundtrackToggle />
-        <ThemeToggle />
       </div>
     </header>
   );

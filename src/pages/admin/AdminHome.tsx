@@ -2,18 +2,6 @@ import { useEffect, useState, type FormEvent } from "react";
 import { supabase } from "../../lib/supabase";
 import type { Concept, Sport } from "../../types";
 
-// "note" shows the caption/overlay for ~2.5s (by default) while the video
-// keeps playing, the normal choice for a short clip. "pause" actually
-// stops playback for that same duration before auto-resuming; set
-// resume_after to a custom number of seconds, or to null on a "pause" beat
-// if you genuinely want it to wait for a manual "Continue" click (e.g. a
-// quiz-style "guess what happens next" moment).
-const BEATS_TEMPLATE = `[
-  { "t": 4.5, "action": "note", "caption": "Watch the screener's angle here.",
-    "overlay": { "arrows": [{ "x1": 30, "y1": 60, "x2": 45, "y2": 40 }] } },
-  { "t": 9, "action": "note", "caption": "That's the slip, weak-side help never rotates in time." }
-]`;
-
 const DIAGRAM_TEMPLATE = `{
   "players": [
     { "id": "1", "x": 50, "y": 50, "team": "offense" },
@@ -27,12 +15,39 @@ const DIAGRAM_TEMPLATE = `{
 
 const QUIZ_TEMPLATE = `["Choice A", "Choice B", "Choice C", "Choice D"]`;
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+type BeatRow = {
+  t: string;
+  action: "note" | "pause";
+  caption: string;
+  arrow: boolean;
+  x1: string;
+  y1: string;
+  x2: string;
+  y2: string;
+};
+
+function emptyBeatRow(): BeatRow {
+  return { t: "", action: "note", caption: "", arrow: false, x1: "", y1: "", x2: "", y2: "" };
+}
+
+function beatRowsToJson(rows: BeatRow[]) {
+  return rows
+    .filter((r) => r.t !== "" && r.caption.trim() !== "")
+    .map((r) => {
+      const beat: Record<string, unknown> = { t: Number(r.t), action: r.action, caption: r.caption.trim() };
+      if (r.arrow && r.x1 !== "" && r.y1 !== "" && r.x2 !== "" && r.y2 !== "") {
+        beat.overlay = { arrows: [{ x1: Number(r.x1), y1: Number(r.y1), x2: Number(r.x2), y2: Number(r.y2) }] };
+      }
+      return beat;
+    });
+}
+
+function Section({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   return (
-    <section className="mb-8 rounded-[var(--radius-pb)] border border-surface-border bg-surface p-5">
-      <h2 className="mb-3 font-display text-lg">{title}</h2>
-      {children}
-    </section>
+    <details open={defaultOpen} className="mb-4 rounded-[var(--radius-pb)] border border-surface-border bg-surface">
+      <summary className="cursor-pointer select-none px-5 py-3 font-display text-lg">{title}</summary>
+      <div className="px-5 pb-5">{children}</div>
+    </details>
   );
 }
 
@@ -62,11 +77,81 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
+function BeatRowEditor({
+  row,
+  onChange,
+  onRemove,
+}: {
+  row: BeatRow;
+  onChange: (row: BeatRow) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-surface-border bg-bg-2 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          type="number"
+          step="0.5"
+          placeholder="t (sec)"
+          value={row.t}
+          onChange={(e) => onChange({ ...row, t: e.target.value })}
+          className="w-24 rounded-lg border border-surface-border bg-bg px-2 py-1 text-sm"
+        />
+        <select
+          value={row.action}
+          onChange={(e) => onChange({ ...row, action: e.target.value as BeatRow["action"] })}
+          className="rounded-lg border border-surface-border bg-bg px-2 py-1 text-sm"
+        >
+          <option value="note">note (keeps playing)</option>
+          <option value="pause">pause (stops, auto-resumes)</option>
+        </select>
+        <label className="ml-auto flex items-center gap-1.5 text-xs text-text-dim">
+          <input
+            type="checkbox"
+            checked={row.arrow}
+            onChange={(e) => onChange({ ...row, arrow: e.target.checked })}
+          />
+          arrow overlay
+        </label>
+        <button type="button" onClick={onRemove} className="text-xs text-accent-2 hover:underline">
+          remove
+        </button>
+      </div>
+      <input
+        type="text"
+        placeholder="Caption, what should the viewer notice right here"
+        value={row.caption}
+        onChange={(e) => onChange({ ...row, caption: e.target.value })}
+        className="rounded-lg border border-surface-border bg-bg px-2 py-1 text-sm"
+      />
+      {row.arrow && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-text-dim">
+          arrow from
+          {(["x1", "y1", "x2", "y2"] as const).map((k) => (
+            <input
+              key={k}
+              type="number"
+              placeholder={k}
+              value={row[k]}
+              onChange={(e) => onChange({ ...row, [k]: e.target.value })}
+              className="w-16 rounded-lg border border-surface-border bg-bg px-2 py-1 text-sm"
+            />
+          ))}
+          <span>(0-100 scale, x1/y1 start, x2/y2 end)</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdminHome() {
   const [sports, setSports] = useState<Sport[]>([]);
   const [concepts, setConcepts] = useState<Concept[]>([]);
   const [clips, setClips] = useState<{ id: string; title: string }[]>([]);
   const [status, setStatus] = useState<string | null>(null);
+  const [beatRows, setBeatRows] = useState<BeatRow[]>([emptyBeatRow()]);
+  const [useRawBeatsJson, setUseRawBeatsJson] = useState(false);
+  const [rawBeatsJson, setRawBeatsJson] = useState("[]");
 
   async function refresh() {
     const [s, c, cl] = await Promise.all([
@@ -139,7 +224,7 @@ export function AdminHome() {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     try {
-      const beats = JSON.parse(form.get("beats") as string);
+      const beats = useRawBeatsJson ? JSON.parse(rawBeatsJson) : beatRowsToJson(beatRows);
       const { error } = await supabase.from("breakdowns").insert({
         clip_id: form.get("clip_id"),
         concept_id: form.get("concept_id"),
@@ -147,6 +232,8 @@ export function AdminHome() {
       });
       flash(error ? error.message : "Breakdown created.");
       e.currentTarget.reset();
+      setBeatRows([emptyBeatRow()]);
+      setRawBeatsJson("[]");
     } catch {
       flash("Beats JSON is invalid, check the format.");
     }
@@ -187,113 +274,154 @@ export function AdminHome() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 py-10">
       <h1 className="mb-1 font-display text-2xl">Authoring</h1>
       <p className="mb-6 text-sm text-text-dim">Create sports, concepts, clips, and their breakdowns.</p>
       {status && <p className="mb-4 text-sm text-primary">{status}</p>}
 
-      <Section title="Sport">
-        <form onSubmit={createSport} className="flex flex-wrap items-end gap-2">
-          <TextInput name="name" placeholder="Basketball" required />
-          <TextInput name="slug" placeholder="basketball" required />
-          <SubmitButton label="Add sport" />
-        </form>
-      </Section>
+      <div className="grid grid-cols-1 gap-x-6 lg:grid-cols-2">
+        <div>
+          <Section title="Sport">
+            <form onSubmit={createSport} className="flex flex-wrap items-end gap-2">
+              <TextInput name="name" placeholder="Basketball" required />
+              <TextInput name="slug" placeholder="basketball" required />
+              <SubmitButton label="Add sport" />
+            </form>
+          </Section>
 
-      <Section title="Concept">
-        <form onSubmit={createConcept} className="flex flex-col gap-2">
-          <select name="sport_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="">Sport…</option>
-            {sports.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-          <TextInput name="title" placeholder="Spain Pick-and-Roll" required />
-          <TextInput name="slug" placeholder="spain-pnr" required />
-          <TextInput name="summary" placeholder="One-line summary" />
-          <TextArea name="body_md" placeholder="Full explainer (markdown)" rows={3} />
-          <TextInput name="difficulty" type="number" min={1} max={5} placeholder="Difficulty 1-5" />
-          <SubmitButton label="Add concept" />
-        </form>
-      </Section>
+          <Section title="Concept">
+            <form onSubmit={createConcept} className="flex flex-col gap-2">
+              <select name="sport_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Sport…</option>
+                {sports.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <TextInput name="title" placeholder="Spain Pick-and-Roll" required />
+              <TextInput name="slug" placeholder="spain-pnr" required />
+              <TextInput name="summary" placeholder="One-line summary" />
+              <TextArea name="body_md" placeholder="Full explainer (markdown)" rows={3} />
+              <TextInput name="difficulty" type="number" min={1} max={5} placeholder="Difficulty 1-5" />
+              <SubmitButton label="Add concept" />
+            </form>
+          </Section>
 
-      <Section title="Clip">
-        <form onSubmit={createClip} className="flex flex-col gap-2">
-          <TextInput name="youtube_id" placeholder="YouTube video ID (e.g. dQw4w9WgXcQ)" required />
-          <TextInput name="title" placeholder="Nuggets vs Lakers, Spain PnR" required />
-          <TextInput name="start_sec" type="number" placeholder="Start second" />
-          <TextInput name="teams" placeholder="DEN, LAL (comma separated)" />
-          <TextInput name="players" placeholder="Jokic, Murray (comma separated)" />
-          <TextInput name="season" placeholder="2023-24" />
-          <select name="quality" className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="canonical">canonical</option>
-            <option value="counter">counter</option>
-            <option value="failed">failed</option>
-          </select>
-          <select name="orientation" className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="landscape">landscape (most YouTube videos)</option>
-            <option value="portrait">portrait (Shorts, phone-recorded clips)</option>
-          </select>
-          <SubmitButton label="Add clip" />
-        </form>
-      </Section>
+          <Section title="Clip">
+            <form onSubmit={createClip} className="flex flex-col gap-2">
+              <TextInput name="youtube_id" placeholder="YouTube video ID (e.g. dQw4w9WgXcQ)" required />
+              <TextInput name="title" placeholder="Nuggets vs Lakers, Spain PnR" required />
+              <TextInput name="start_sec" type="number" placeholder="Start second" />
+              <TextInput name="teams" placeholder="DEN, LAL (comma separated)" />
+              <TextInput name="players" placeholder="Jokic, Murray (comma separated)" />
+              <TextInput name="season" placeholder="2023-24" />
+              <select name="quality" className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="canonical">canonical</option>
+                <option value="counter">counter</option>
+                <option value="failed">failed</option>
+              </select>
+              <select name="orientation" className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="landscape">landscape (most YouTube videos)</option>
+                <option value="portrait">portrait (Shorts, phone-recorded clips)</option>
+              </select>
+              <SubmitButton label="Add clip" />
+            </form>
+          </Section>
+        </div>
 
-      <Section title="Breakdown (beats)">
-        <form onSubmit={createBreakdown} className="flex flex-col gap-2">
-          <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="">Concept…</option>
-            {concepts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-          <select name="clip_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="">Clip…</option>
-            {clips.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-          <TextArea name="beats" defaultValue={BEATS_TEMPLATE} rows={8} />
-          <SubmitButton label="Add breakdown" />
-        </form>
-      </Section>
+        <div>
+          <Section title="Breakdown (beats)" defaultOpen>
+            <form onSubmit={createBreakdown} className="flex flex-col gap-3">
+              <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Concept…</option>
+                {concepts.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <select name="clip_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Clip…</option>
+                {clips.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
 
-      <Section title="Chalkboard diagram">
-        <form onSubmit={createDiagram} className="flex flex-col gap-2">
-          <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="">Concept…</option>
-            {concepts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-          <TextArea name="spec" defaultValue={DIAGRAM_TEMPLATE} rows={8} />
-          <SubmitButton label="Add diagram" />
-        </form>
-      </Section>
+              <label className="flex items-center gap-1.5 text-xs text-text-dim">
+                <input
+                  type="checkbox"
+                  checked={useRawBeatsJson}
+                  onChange={(e) => setUseRawBeatsJson(e.target.checked)}
+                />
+                Use raw JSON instead of the beat builder
+              </label>
 
-      <Section title="Quiz item">
-        <form onSubmit={createQuizItem} className="flex flex-col gap-2">
-          <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
-            <option value="">Concept…</option>
-            {concepts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
-            ))}
-          </select>
-          <TextInput name="prompt" placeholder="What coverage is this?" required />
-          <TextArea name="choices" defaultValue={QUIZ_TEMPLATE} rows={2} />
-          <TextInput name="answer_idx" type="number" min={0} placeholder="Correct choice index (0-based)" />
-          <SubmitButton label="Add quiz item" />
-        </form>
-      </Section>
+              {useRawBeatsJson ? (
+                <TextArea
+                  value={rawBeatsJson}
+                  onChange={(e) => setRawBeatsJson(e.target.value)}
+                  rows={8}
+                />
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {beatRows.map((row, i) => (
+                    <BeatRowEditor
+                      key={i}
+                      row={row}
+                      onChange={(next) => setBeatRows((rows) => rows.map((r, ri) => (ri === i ? next : r)))}
+                      onRemove={() => setBeatRows((rows) => rows.filter((_, ri) => ri !== i))}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setBeatRows((rows) => [...rows, emptyBeatRow()])}
+                    className="w-fit rounded-full border border-surface-border px-3 py-1 text-xs text-text-dim hover:border-primary hover:text-text"
+                  >
+                    + add beat
+                  </button>
+                </div>
+              )}
+
+              <SubmitButton label="Add breakdown" />
+            </form>
+          </Section>
+
+          <Section title="Chalkboard diagram">
+            <form onSubmit={createDiagram} className="flex flex-col gap-2">
+              <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Concept…</option>
+                {concepts.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <TextArea name="spec" defaultValue={DIAGRAM_TEMPLATE} rows={8} />
+              <SubmitButton label="Add diagram" />
+            </form>
+          </Section>
+
+          <Section title="Quiz item">
+            <form onSubmit={createQuizItem} className="flex flex-col gap-2">
+              <select name="concept_id" required className="rounded-lg border border-surface-border bg-bg-2 px-3 py-1.5 text-sm">
+                <option value="">Concept…</option>
+                {concepts.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+              <TextInput name="prompt" placeholder="What coverage is this?" required />
+              <TextArea name="choices" defaultValue={QUIZ_TEMPLATE} rows={2} />
+              <TextInput name="answer_idx" type="number" min={0} placeholder="Correct choice index (0-based)" />
+              <SubmitButton label="Add quiz item" />
+            </form>
+          </Section>
+        </div>
+      </div>
     </div>
   );
 }

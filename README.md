@@ -22,7 +22,7 @@ Two themes: **MyPark** (modern, default) and **Showtime** (90s vibe). Toggle in 
    npm install
    npm run dev
    ```
-4. **Seed content** (optional, once the schema is applied): `npm run seed` populates `scripts/seed.ts`'s 10 concepts (uses the service-role key locally, bypasses RLS, never deploy this key).
+4. **Seed content** (optional, once the schema is applied): `npm run seed` populates `scripts/seed.ts`'s 16 concepts across basketball and football (uses the service-role key locally, bypasses RLS, never deploy this key).
 5. **Deploy:** push to `main`. Vercel auto-deploys. Mirror the same env vars from `.env.local` into the Vercel project's Environment Variables (Production + Preview), using the non-`VITE_` names for `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `GROQ_API_KEY` since those are server-only.
 
 ## Admin / authoring

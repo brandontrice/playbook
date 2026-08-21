@@ -10,6 +10,7 @@ if (!url || !serviceRoleKey) {
 const supabase = createClient(url, serviceRoleKey);
 
 type SeedConcept = {
+  sport_slug: string;
   slug: string;
   title: string;
   summary: string;
@@ -27,10 +28,14 @@ type SeedConcept = {
   };
   beats: unknown[];
   diagram: unknown;
+  diagramSurface?: string;
   quiz: { prompt: string; choices: string[]; answer_idx: number }[];
 };
 
-const SPORT = { name: "Basketball", slug: "basketball" };
+const SPORTS = [
+  { name: "Basketball", slug: "basketball" },
+  { name: "Football", slug: "football" },
+];
 
 // Top-10 2025-26 NBA jersey-sales players (per NBA.com/NBPA, Aug 2026), one
 // signature concept each. Clips are short, single-play clips (mostly
@@ -44,6 +49,7 @@ const SPORT = { name: "Basketball", slug: "basketball" };
 // in Admin. Swap any pick you don't like the same way.
 const CONCEPTS: SeedConcept[] = [
   {
+    sport_slug: "basketball",
     slug: "curry-relocation-shooting",
     title: "Relocation Shooting",
     summary: "Give up the ball, then immediately move to a new spot: the defense has to solve you all over again.",
@@ -91,6 +97,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "luka-stepback-three",
     title: "The Step-Back Three",
     summary: "Create a full stride of separation from a live dribble, then rise before the defender can close it.",
@@ -137,6 +144,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "brunson-mid-range-hesitation",
     title: "Mid-Range Hesitation",
     summary: "A change of pace, not a burst of speed: freezing the defender's hips is what creates the scoring window, pull-up or drive.",
@@ -182,6 +190,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "wembanyama-weakside-rim-protection",
     title: "Weak-Side Rim Protection",
     summary: "Helping from the gap without fouling: length lets you contest straight up instead of chasing the block.",
@@ -227,6 +236,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "lebron-reading-the-help",
     title: "Reading the Help Before It Arrives",
     summary: "The pass leaves his hand before the help defender fully commits: the read happens a beat early, not after.",
@@ -272,6 +282,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "edwards-attacking-closeouts",
     title: "Attacking Closeouts",
     summary: "A defender flying at you off-balance is a driving lane, not a contest: one hard dribble turns it into a dunk.",
@@ -315,6 +326,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "tatum-side-step-three",
     title: "The Side-Step Three",
     summary: "Lateral separation instead of backward separation: same idea as a step-back, different direction.",
@@ -358,6 +370,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "sga-change-of-speed-drives",
     title: "Change-of-Speed Drives",
     summary: "Slow, slow, fast: the sudden acceleration into contact is what draws the whistle and gets to the rim.",
@@ -401,6 +414,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "flagg-switchable-defense",
     title: "Switchable Defense",
     summary: "One defender guarding multiple positions without a mismatch: size and lateral quickness both, at once.",
@@ -445,6 +459,7 @@ const CONCEPTS: SeedConcept[] = [
     ],
   },
   {
+    sport_slug: "basketball",
     slug: "jokic-high-post-anticipation",
     title: "High-Post Anticipation",
     summary: "Operating from the elbow, he reads where the defense is about to break down before it actually does: the pass is thrown to a spot, not a person.",
@@ -494,6 +509,294 @@ const CONCEPTS: SeedConcept[] = [
       },
     ],
   },
+  // Football: 3 offensive concepts, 3 defensive, sourced the same way as
+  // the basketball set (short clips, verified live via oEmbed before
+  // inclusion, a mix of real game moments and short explainer clips from
+  // team/league/coaching channels since scheme concepts like Cover 2 or an
+  // RPO read don't always map to one flashy highlight the way a dunk does).
+  {
+    sport_slug: "football",
+    slug: "play-action-pass",
+    title: "Play-Action Pass",
+    summary: "Fake the handoff hard enough and linebackers bite, opening throwing lanes that weren't there a half-second earlier.",
+    body_md:
+      "The quarterback opens like it's a run: same footwork, same fake, same eyes down at the mesh point with the running back. Why it works: linebackers and safeties read those first steps to decide run-or-pass, and a convincing fake buys the quarterback a full second defenders aren't ready for before anyone recovers into coverage. Counter: defenses train linebackers to read the offensive line's pads instead of the backfield fake, since linemen block pass protection differently than they block a real run no matter how good the ball fake looks.",
+    difficulty: 2,
+    sort_order: 11,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "4hOALdGiL8w",
+      start_sec: 0,
+      title: "Play Action Myth",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch the fake, same footwork and eyes as a real handoff.", overlay: { arrows: [{ x1: 50, y1: 50, x2: 50, y2: 40 }] } },
+      { t: 5, action: "note", caption: "Linebackers bit on the run, that's the window opening downfield." },
+      { t: 9, action: "note", caption: "The lie only works for a second, that's exactly how long the quarterback needs." },
+    ],
+    diagram: {
+      players: [
+        { id: "QB", x: 50, y: 40, team: "offense" },
+        { id: "RB", x: 50, y: 48, team: "offense" },
+        { id: "WR", x: 85, y: 20, team: "offense" },
+        { id: "LB", x: 50, y: 30, team: "defense" },
+      ],
+      ball: { x: 50, y: 40 },
+      annotations: [
+        { type: "arrow", x1: 50, y1: 30, x2: 50, y2: 45, label: "bites on fake" },
+        { type: "arrow", x1: 50, y1: 40, x2: 82, y2: 22, label: "throw" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What actually creates the throwing window on a play-action pass?",
+        choices: [
+          "Linebackers reading the fake and stepping toward the line of scrimmage",
+          "The offensive line always missing their blocks",
+          "It's illegal to defend a fake handoff",
+          "The quarterback running faster than the defense",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "rpo-read",
+    title: "The RPO Read",
+    summary: "One player, usually an unblocked defender, decides whether the play turns into a run or a pass after the snap.",
+    body_md:
+      "In a run-pass option the quarterback doesn't decide run or pass in the huddle, he decides after the snap by reading one specific defender left unblocked on purpose. Why it works: that defender is stuck in a lose-lose spot, if he crashes down to stop the run he leaves his pass responsibility wide open, if he stays back in coverage the running lane is free. Counter: defenses assign that same defender to simply stay disciplined and hold his run/pass conflict rather than reacting hard either way, accepting a smaller gain instead of the big one the offense is hunting for.",
+    difficulty: 4,
+    sort_order: 12,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "elVo3sM1oho",
+      start_sec: 0,
+      title: "What Are RPOs?",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch this one defender, he's unblocked on purpose.", overlay: { circles: [{ x: 60, y: 32, r: 5 }] } },
+      { t: 5, action: "note", caption: "The quarterback is reading him, not calling a run or pass before the snap." },
+      { t: 9, action: "note", caption: "Whichever way that defender commits, the offense already has the answer." },
+    ],
+    diagram: {
+      players: [
+        { id: "QB", x: 50, y: 40, team: "offense" },
+        { id: "RB", x: 50, y: 48, team: "offense" },
+        { id: "WR", x: 80, y: 35, team: "offense" },
+        { id: "X", x: 65, y: 32, team: "defense" },
+      ],
+      ball: { x: 50, y: 40 },
+      annotations: [
+        { type: "label", x: 65, y: 26, text: "unblocked, in conflict" },
+        { type: "arrow", x1: 50, y1: 40, x2: 78, y2: 34, label: "quick throw" },
+      ],
+    },
+    quiz: [
+      {
+        prompt: "What decides whether an RPO becomes a run or a pass?",
+        choices: [
+          "How one specific unblocked defender reacts after the snap",
+          "A coin flip before the play",
+          "The quarterback always chooses before the snap",
+          "The crowd noise",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "beating-press-coverage-football",
+    title: "Beating Press Coverage",
+    summary: "A quick, violent release at the line beats a jam before the defender's hands ever get set.",
+    body_md:
+      "Press coverage means the defender lines up right on the receiver, trying to jam him at the snap and throw the route off its timing before it even starts. The release move (a hard step one way, a shoulder dip, a swipe of the defender's hands) is designed to beat that jam in the first two steps. Why it works: a defender in press has to react to the receiver's first move, so a decisive, sudden release beats a defender who's still deciding which way to slide. Counter: defensive backs train their own hand technique and footwork to stay square and mirror the release instead of committing early to a guess.",
+    difficulty: 3,
+    sort_order: 13,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "ocnoTeeZ9z0",
+      start_sec: 0,
+      title: "Wide Receiver Techniques: Shock Release",
+      teams: [],
+      players: [],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Defender's right on him, that's press, and the release starts right here.", overlay: { arrows: [{ x1: 40, y1: 50, x2: 40, y2: 40 }] } },
+      { t: 5, action: "note", caption: "One hard step and a shoulder dip, that's the move beating the jam." },
+      { t: 9, action: "note", caption: "The defender had to react to that first step, and reacting is already too slow." },
+    ],
+    diagram: {
+      players: [
+        { id: "WR", x: 40, y: 50, team: "offense" },
+        { id: "CB", x: 40, y: 42, team: "defense" },
+      ],
+      annotations: [{ type: "arrow", x1: 40, y1: 50, x2: 55, y2: 30, label: "release" }],
+    },
+    quiz: [
+      {
+        prompt: "Why does a quick, decisive release move beat press coverage?",
+        choices: [
+          "It forces the defender to react instead of dictating the matchup",
+          "It's illegal for a defender to touch a receiver at all",
+          "The receiver is always faster in press situations",
+          "Press coverage doesn't allow any contact",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "cover-2-zone-drop",
+    title: "Cover 2 Zone Drop",
+    summary: "Two deep safeties split the field in half, everyone else drops into a zone underneath instead of chasing a receiver man to man.",
+    body_md:
+      "In Cover 2, two safeties each take one deep half of the field while the cornerbacks and linebackers drop into underneath zones, reading the quarterback's eyes instead of locking onto one receiver. Why it works: no single receiver can beat it deep alone, since there's always a safety over the top of his half, and the underneath defenders can react to wherever the ball actually goes instead of guessing. Counter: offenses attack the seams, the gaps between the two deep safeties and the underneath zone, and the middle of the field where neither safety has full responsibility.",
+    difficulty: 3,
+    sort_order: 14,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "0lnP_jB1q2A",
+      start_sec: 0,
+      title: "Football 101: Cover 2 Defense, Explained by Jessie Bates III",
+      teams: ["ATL"],
+      players: ["Jessie Bates III"],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Two safeties, each holding one half deep, that's the whole idea of Cover 2.", overlay: { circles: [{ x: 30, y: 15, r: 5 }, { x: 70, y: 15, r: 5 }] } },
+      { t: 6, action: "note", caption: "Everyone underneath is reading the quarterback's eyes, not chasing a man." },
+      { t: 10, action: "note", caption: "That's why it works: no one receiver can beat the whole shell alone." },
+    ],
+    diagram: {
+      players: [
+        { id: "S1", x: 30, y: 12, team: "defense" },
+        { id: "S2", x: 70, y: 12, team: "defense" },
+        { id: "C1", x: 10, y: 30, team: "defense" },
+        { id: "C2", x: 90, y: 30, team: "defense" },
+        { id: "WR", x: 50, y: 15, team: "offense" },
+      ],
+      annotations: [{ type: "label", x: 50, y: 8, text: "seam, the gap between the two safeties" }],
+    },
+    quiz: [
+      {
+        prompt: "What's the main defensive idea behind Cover 2?",
+        choices: [
+          "Two safeties split deep responsibility while everyone else plays zone underneath",
+          "Every defender covers a specific receiver man to man",
+          "It only defends against the run",
+          "Cover 2 means two extra pass rushers",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "edge-rush-win",
+    title: "Winning the Edge Rush",
+    summary: "Beating the tackle's first punch and turning the corner before the quarterback ever finishes his drop.",
+    body_md:
+      "An edge rusher's whole rep is decided in the first two steps, win the tackle's initial punch with a hand swipe or a dip of the shoulder, and there's a straight line to the quarterback. Why it works: an offensive tackle has to protect against both the speed rush around the edge and the counter move back inside, so a rusher who threatens both keeps the tackle guessing and off balance. Counter: tackles train to mirror the rusher's hips rather than his hands, and offenses will chip the edge rusher with a tight end or running back to slow the first step down before the tackle ever has to handle him alone.",
+    difficulty: 3,
+    sort_order: 15,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "75FUDgVKzVg",
+      start_sec: 0,
+      title: "Myles Garrett Strip Sack on Baker Mayfield",
+      teams: ["CLE"],
+      players: ["Myles Garrett"],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Watch the first punch, win this and the rest of the rep is already decided.", overlay: { arrows: [{ x1: 25, y1: 40, x2: 55, y2: 35 }] } },
+      { t: 5, action: "note", caption: "He's turned the corner, the tackle's a half-step too slow to recover." },
+      { t: 8, action: "note", caption: "That's the whole rep: two steps at the line, then the sack was already coming." },
+    ],
+    diagram: {
+      players: [
+        { id: "DE", x: 25, y: 40, team: "defense" },
+        { id: "OT", x: 32, y: 38, team: "offense" },
+        { id: "QB", x: 55, y: 30, team: "offense" },
+      ],
+      annotations: [{ type: "arrow", x1: 25, y1: 40, x2: 53, y2: 31, label: "turns the corner" }],
+    },
+    quiz: [
+      {
+        prompt: "When is an edge rush rep usually decided?",
+        choices: [
+          "In the first couple of steps, winning the initial hand fight with the tackle",
+          "Only after the quarterback has thrown the ball",
+          "It's decided entirely by straight-line speed",
+          "The rusher always has to wait for a blitz call",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
+  {
+    sport_slug: "football",
+    slug: "run-fit-discipline",
+    title: "Run Fit Discipline",
+    summary: "Every defender owns one gap. Fill the wrong one and the whole scheme breaks, no matter how fast anyone runs.",
+    body_md:
+      "Every run defense assigns each defender a specific gap between two offensive linemen to fill, not just a general area to cover. Why it works: as long as every gap is accounted for, the running back has nowhere untouched to go, since even a free defender who's out of position creates the exact crease the offense is looking for. Counter: offenses use misdirection, motion, and pulling linemen specifically to make a disciplined defender guess wrong and vacate his gap a half-second before the ball actually gets there.",
+    difficulty: 4,
+    sort_order: 16,
+    diagramSurface: "field",
+    clip: {
+      youtube_id: "u7sjtJfJuAk",
+      start_sec: 0,
+      title: "Brady Explaining the \"A Gap\"",
+      teams: [],
+      players: ["Tom Brady"],
+      season: "2025-26",
+      orientation: "portrait",
+    },
+    beats: [
+      { t: 2, action: "note", caption: "Each defender owns one gap here, not just a general area.", overlay: { arrows: [{ x1: 50, y1: 45, x2: 50, y2: 35 }] } },
+      { t: 5, action: "note", caption: "Watch him stay in his gap even as the play tries to pull him out of it." },
+      { t: 9, action: "note", caption: "One free gap is all a run needs, discipline is what closes it." },
+    ],
+    diagram: {
+      players: [
+        { id: "C", x: 50, y: 45, team: "offense" },
+        { id: "G", x: 42, y: 45, team: "offense" },
+        { id: "G", x: 58, y: 45, team: "offense" },
+        { id: "MLB", x: 50, y: 32, team: "defense" },
+        { id: "RB", x: 50, y: 52, team: "offense" },
+      ],
+      annotations: [{ type: "label", x: 46, y: 45, text: "A gap" }],
+    },
+    quiz: [
+      {
+        prompt: "What breaks a disciplined run defense?",
+        choices: [
+          "Even one defender leaving his assigned gap",
+          "A defense with too many players on the field",
+          "Running the ball only on 3rd down",
+          "The offense huddling before the play",
+        ],
+        answer_idx: 0,
+      },
+    ],
+  },
 ];
 
 // Slugs from earlier seed runs that got renamed or dropped (dead clip
@@ -502,12 +805,13 @@ const CONCEPTS: SeedConcept[] = [
 const RETIRED_SLUGS = ["lebron-downhill-drive-and-kick", "jokic-spain-pnr"];
 
 async function main() {
-  const { data: sport, error: sportErr } = await supabase
+  const { data: sportRows, error: sportErr } = await supabase
     .from("sports")
-    .upsert(SPORT, { onConflict: "slug" })
-    .select()
-    .single();
-  if (sportErr || !sport) throw sportErr;
+    .upsert(SPORTS, { onConflict: "slug" })
+    .select();
+  if (sportErr || !sportRows) throw sportErr;
+  const sportIdBySlug: Record<string, string> = {};
+  for (const s of sportRows) sportIdBySlug[s.slug] = s.id;
 
   await supabase.from("concepts").delete().in("slug", RETIRED_SLUGS);
 
@@ -516,7 +820,7 @@ async function main() {
       .from("concepts")
       .upsert(
         {
-          sport_id: sport.id,
+          sport_id: sportIdBySlug[c.sport_slug],
           slug: c.slug,
           title: c.title,
           summary: c.summary,
@@ -569,7 +873,9 @@ async function main() {
 
     await supabase.from("clip_concepts").insert({ clip_id: clip.id, concept_id: concept.id });
     await supabase.from("breakdowns").insert({ clip_id: clip.id, concept_id: concept.id, beats: c.beats });
-    await supabase.from("diagrams").insert({ concept_id: concept.id, spec: c.diagram });
+    await supabase
+      .from("diagrams")
+      .insert({ concept_id: concept.id, surface: c.diagramSurface ?? "halfcourt", spec: c.diagram });
     if (c.quiz.length > 0) {
       await supabase.from("quiz_items").insert(c.quiz.map((q) => ({ concept_id: concept.id, ...q })));
     }

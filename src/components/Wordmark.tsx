@@ -1,10 +1,11 @@
-// The brand mark: a real logotype instead of plain text, with the
-// telestrator stroke (the coach's marker underline) as the logo concept
-// itself, drawn in on mount via the same pb-draw animation the player's
-// arrows use.
+// The brand mark: a real logotype instead of plain text, with a
+// telestrator stroke drawn diagonally through the "P" (a route drawn on a
+// play diagram), not an underline sweep beneath the whole word, that
+// shape reads as someone else's logo. Draws in on mount via the same
+// pb-draw animation the player's arrows use.
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 220 44" className={className} role="img" aria-label="Playbook">
+    <svg viewBox="0 0 220 40" className={className} role="img" aria-label="Playbook">
       <text
         x="0"
         y="28"
@@ -17,7 +18,7 @@ export function Wordmark({ className = "" }: { className?: string }) {
         PLAYBOOK
       </text>
       <path
-        d="M2,36 C 40,44 150,44 205,33"
+        d="M1,31 L17,4"
         fill="none"
         stroke="var(--pb-accent)"
         strokeWidth="3"
@@ -25,7 +26,7 @@ export function Wordmark({ className = "" }: { className?: string }) {
         pathLength={1}
         className="pb-draw"
       />
-      <path d="M199,28 L207,33 L198,37 Z" fill="var(--pb-accent)" />
+      <path d="M11,3 L20,2 L16,10 Z" fill="var(--pb-accent)" />
     </svg>
   );
 }

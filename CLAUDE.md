@@ -11,6 +11,10 @@ Two selectable themes, both implemented as CSS-variable token sets under `src/th
 
 No team logos, wordmarks, or league branding assets: those are trademarked. The vibe is carried entirely by color, type, and CSS-generated texture (grain, parquet pattern, glow), not by ripped assets. When adding new UI, style both themes via the token layer rather than hardcoding colors in components, so new screens don't silently work in only one theme.
 
+## Multi-sport
+
+Genuinely multi-sport, not basketball with a football section bolted on: `sports` is a real table (currently Basketball and Football), and anything sport-specific has to key off `sports.slug`, not assume basketball. The one real gotcha: team abbreviations collide across leagues (CLE is both the Cavaliers and the Browns, DEN both the Nuggets and the Broncos), so `src/lib/teamColors.ts` is namespaced per sport slug, never add a flat cross-sport color table again. `diagrams.surface` drives which court/field markings `Chalkboard.tsx` draws (`halfcourt` vs `field`), extend that switch rather than hardcoding one sport's markings.
+
 ## SQL style for this project
 
 (From `schema.sql`'s own header comment.) Keywords lowercase (`select`, `from`, `where`, `create table`, etc.), never capitalized; table and column identifiers keep whatever case they were created with. New migrations follow the `vN.sql` pattern used across Brandon's Supabase projects: a header comment stating what the file does and "Run whole file in Supabase > SQL Editor," full standalone runnable SQL (not a diff). Never a partial `ALTER`-only fragment that depends on a prior file's state. When a change ships, fold it into `schema.sql` too, same as `cate-photo`, so it stays the single source of truth for a fresh install.

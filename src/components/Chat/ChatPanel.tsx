@@ -1,12 +1,12 @@
 import { useState } from "react";
 
 type Message = { role: "user" | "assistant"; content: string };
-type Difficulty = "new" | "casual" | "hoops-head";
+type Difficulty = "new" | "casual" | "superfan";
 
 const DIFFICULTY_LABEL: Record<Difficulty, string> = {
   new: "Never watched",
   casual: "Casual fan",
-  "hoops-head": "Hoops head",
+  superfan: "Superfan",
 };
 
 export function ChatPanel({ conceptSlug }: { conceptSlug: string }) {

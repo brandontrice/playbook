@@ -8,7 +8,7 @@ import { createClient } from "@supabase/supabase-js";
 const DIFFICULTY_INSTRUCTIONS: Record<string, string> = {
   new: "The user has never watched this sport. Avoid jargon entirely, or define it immediately in plain language the first time you use it.",
   casual: "The user watches casually and knows the basics. You can use common terms without defining them, but keep explanations grounded and concrete.",
-  "hoops-head": "The user knows the sport well. Go deep: technique, spacing, timing, counters, without over-explaining fundamentals.",
+  superfan: "The user knows the sport well. Go deep: technique, timing, reads, counters, without over-explaining fundamentals.",
 };
 
 type ChatMessage = { role: "user" | "assistant"; content: string };

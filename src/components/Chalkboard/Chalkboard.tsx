@@ -13,12 +13,22 @@ function describeDiagram(diagram: Diagram): string {
 
 export function Chalkboard({ diagram }: { diagram: Diagram }) {
   const { players, ball, annotations } = diagram.spec;
+  const isField = diagram.surface === "field";
 
   return (
     <div className="pb-chalk overflow-hidden rounded-[var(--radius-pb)] border p-2">
       <svg viewBox="0 0 100 60" role="img" aria-label={describeDiagram(diagram)} className="relative z-10 h-auto w-full">
         <rect x={1} y={1} width={98} height={58} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={0.4} strokeDasharray="1.2 1" />
-        <circle cx={50} cy={30} r={8} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={0.4} strokeDasharray="1.2 1" />
+        {isField ? (
+          <>
+            {[10, 25, 40, 60, 75, 90].map((x) => (
+              <line key={x} x1={x} y1={1} x2={x} y2={59} stroke="rgba(255,255,255,0.3)" strokeWidth={0.3} />
+            ))}
+            <line x1={50} y1={1} x2={50} y2={59} stroke="rgba(255,255,255,0.55)" strokeWidth={0.5} strokeDasharray="1.2 1" />
+          </>
+        ) : (
+          <circle cx={50} cy={30} r={8} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={0.4} strokeDasharray="1.2 1" />
+        )}
 
         {annotations.map((a, i) => {
           if (a.type === "arrow") {

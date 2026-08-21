@@ -26,10 +26,10 @@ function DifficultyPips({ level }: { level: number }) {
   );
 }
 
-function PosterCard({ concept, clip }: { concept: Concept; clip?: CardClip }) {
+function PosterCard({ concept, clip, sportSlug }: { concept: Concept; clip?: CardClip; sportSlug: string }) {
   const player = clip?.players?.[0];
   const team = clip?.teams?.[0];
-  const tint = teamColor(team);
+  const tint = teamColor(team, sportSlug);
 
   return (
     <Link
@@ -141,7 +141,17 @@ export function Home() {
       <div id="library" />
 
       {!loading && (() => {
-        const teams = [...new Set(Object.values(clipsByConcept).map((c) => c.teams[0]).filter(Boolean))].sort();
+        // Team abbreviations can collide across sports (CLE, DEN, MIN are
+        // each a team in more than one league), so track which sport each
+        // team abbreviation was actually seen under for correct tinting.
+        const sportSlugById: Record<string, string> = {};
+        for (const s of sports) sportSlugById[s.id] = s.slug;
+        const teamSportSlug: Record<string, string> = {};
+        for (const c of concepts) {
+          const team = clipsByConcept[c.id]?.teams[0];
+          if (team && !teamSportSlug[team]) teamSportSlug[team] = sportSlugById[c.sport_id];
+        }
+        const teams = Object.keys(teamSportSlug).sort();
         if (teams.length === 0) return null;
         return (
           <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -156,7 +166,7 @@ export function Home() {
               All teams
             </button>
             {teams.map((team) => {
-              const tint = teamColor(team);
+              const tint = teamColor(team, teamSportSlug[team]);
               const active = teamFilter === team;
               return (
                 <button
@@ -200,7 +210,7 @@ export function Home() {
               <h2 className="mb-3 text-sm uppercase tracking-widest text-text-dim">{sport.name}</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sportConcepts.map((c) => (
-                  <PosterCard key={c.id} concept={c} clip={clipsByConcept[c.id]} />
+                  <PosterCard key={c.id} concept={c} clip={clipsByConcept[c.id]} sportSlug={sport.slug} />
                 ))}
               </div>
             </section>
